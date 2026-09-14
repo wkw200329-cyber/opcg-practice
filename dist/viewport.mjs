@@ -16,8 +16,7 @@ export function resizeTable(){
  const height=Math.max(100,(visualViewport?.height||innerHeight)-top-4),width=frame.clientWidth;
  frame.style.height=height+'px';canvas.style.width=Math.max(960,Math.min(1400,width))+'px';
  const unconstrained=Math.min(1,width/canvas.offsetWidth,height/canvas.offsetHeight);
- // On a desktop, keep cards at a usable size and let the board scroll vertically if needed.
- const scale=innerWidth>700?Math.max(.78,unconstrained):unconstrained;
+ const scale=unconstrained;
  canvas.style.transform=`scale(${scale})`;canvas.style.left='0px';
  scaler.style.width=(canvas.offsetWidth*scale)+'px';scaler.style.height=(canvas.offsetHeight*scale)+'px';scaler.style.marginLeft=Math.max(0,(width-canvas.offsetWidth*scale)/2)+'px';
 }
