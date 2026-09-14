@@ -47,3 +47,4 @@ implemented.proc.add('LeaderPowerZero');
 ['Passive1KPerXTrash','Passive1KPerXEventTrash','Passive1KPerXRestedDon','Passive2CostPerXTrash','SetPowerToZero','SetBasePowerToZero'].forEach(k=>implemented.effect.add(k));
 ['BecomeDefenderCharacter','FieldDoubleAttack'].forEach(k=>implemented.effect.add(k));
 implemented.effect.add('NoTakeLifeToTurnStart');
+implemented.effect.add('CantActivateDonToTurnEnd');
