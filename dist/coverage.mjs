@@ -36,4 +36,6 @@ implemented.proc.add('QueuedEndOfTurn');['QueueUpEndOfTurnAction','DonMinusToOpp
 ['TransferDon','TurnEndActivateDon','MatchOpponentPowerUntilTurnEnd','DealDamage'].forEach(k=>implemented.effect.add(k));
 implemented.target.add('SecondCostOrLess');
 implemented.target.add('OverrideUITargetCount');
+implemented.target.add('CostOppLifeOrLess');
 ['BuffCombatXPerPrevTargets','FieldBasePowerChange'].forEach(k=>implemented.effect.add(k));
+['PowerXOrMore','SelfRestedCharacterCategory'].forEach(k=>implemented.proc.add(k));
