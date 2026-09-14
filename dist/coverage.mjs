@@ -48,3 +48,4 @@ implemented.proc.add('LeaderPowerZero');
 ['BecomeDefenderCharacter','FieldDoubleAttack'].forEach(k=>implemented.effect.add(k));
 implemented.effect.add('NoTakeLifeToTurnStart');
 implemented.effect.add('CantActivateDonToTurnEnd');
+implemented.effect.add('OtherCharsImmuneToNoncombatKO');
