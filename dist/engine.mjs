@@ -288,7 +288,7 @@ export class Engine {
       if(e.SetBasePowerToOppEnd)this.mod(x,'basePower',e.SetBasePowerToOppEnd,'oppEnd');
       if(e.Silence)this.mod(x,'flag','Silence');if(e.SilenceToOwnersEnd)this.mod(x,'flag','Silence','ownerEnd');if(e.GainBlockerToOppEnd)this.mod(x,'flag','Blocker','oppEnd');
       for(const[k,flag]of Object.entries({GainRush:'Rush',GainRushCharacters:'RushCharacters',GainBlocker:'Blocker',GainDoubleAttack:'DoubleAttack',GainBanish:'Banish',GainUnblockable:'Unblockable',GainCanAttackActive:'CanAttackActive',CantAttack:'CantAttack',CantRest:'CantRest',GainImmune:'ImmuneToNoncombat',LoseBlocker:'LoseBlocker'}))if(e[k])this.mod(x,'flag',flag);
-      if(e.Activate&&!(x.zone==='don'&&this.s.noActivateDon?.[x.owner]))x.rested=false;if(e.Rest&&!x.rested){x.rested=true;this.emit('OnRest',x,{owner:x.owner})}if(e.Freeze)x.freeze=true;if(e.FlipLifeDown)x.faceUp=false;
+      if(e.GainCombatImmuneToStart)this.mod(x,'flag','ImmuneToBattle','ownerStart');if(e.Activate&&!(x.zone==='don'&&this.s.noActivateDon?.[x.owner]))x.rested=false;if(e.Rest&&!x.rested&&!this.flags(x).ImmuneToRest){x.rested=true;this.emit('OnRest',x,{owner:x.owner})}if(e.Freeze)x.freeze=true;if(e.FlipLifeDown)x.faceUp=false;
       if(e.BecomeDefenderCharacter&&this.s.battle&&['leader','field'].includes(x.zone)){this.s.battle.target=x.uid;this.s.battle.blocked=true;this.log(`${this.name(x)} 成为攻击目标`);}
       if(e.AttachRestedDon||e.AttachActiveDon){const ds=e.AttachRestedDon?this.restDon(o):this.readyDon(o);if(ds[0])ds[0].attached=x.uid;}
       const group=removalGroup,options={source:c,group};

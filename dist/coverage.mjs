@@ -51,3 +51,4 @@ implemented.effect.add('CantActivateDonToTurnEnd');
 implemented.effect.add('OtherCharsImmuneToNoncombatKO');
 ['CostCombinedLifeOrLess','CostOppDonOrLess'].forEach(k=>implemented.target.add(k));
 implemented.effect.add('TrashLifeTo');
+['ImmuneToRest','GainCombatImmuneToStart'].forEach(k=>implemented.effect.add(k));
