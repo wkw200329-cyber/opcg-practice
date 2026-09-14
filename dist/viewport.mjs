@@ -1,6 +1,7 @@
 let preference=null;
 try{preference=localStorage.getItem('opcg-fit');}catch{}
-export function fitEnabled(){return preference===null?innerWidth>innerHeight:preference==='on';}
+// Keep desktop cards readable by default.  The user can still choose compact whole-table view.
+export function fitEnabled(){return preference==='on';}
 export function toggleFit(){preference=fitEnabled()?'off':'on';try{localStorage.setItem('opcg-fit',preference);}catch{}}
 export function fitMarkup(content){return `<div class="view-toolbar"><button data-fit aria-pressed="${fitEnabled()}">${fitEnabled()?'恢复原大小':'适应屏幕'}</button><span>${fitEnabled()?'整桌显示 · 点卡查看大图':'原大小显示'}</span></div><div class="fit-viewport"><div class="fit-canvas">${content}</div></div>`;}
 export function resizeTable(){

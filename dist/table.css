@@ -43,3 +43,27 @@ body.fit-mode> #app>header{height:42px;padding:0 12px}.fit-mode header .brand sm
 @media(orientation:landscape) and (max-height:600px){
 .fit-mode .leader-slot,.fit-mode .leader-slot .table-card{width:62px}.fit-mode .characters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;justify-items:center}.fit-mode .characters .table-card,.fit-mode .empty-slot{width:100%;max-width:62px}.fit-mode .battle-lane{min-height:100px}.fit-mode .hand-cards{--hand-width:78px;min-height:128px}
 }
+
+/* Wide screens use the available desk before switching to the compact whole-table view. */
+@media(min-width:1101px){
+ .shell{max-width:1760px;padding:22px 40px 44px}
+ .table-layout{grid-template-columns:minmax(0,1fr) 400px;gap:24px}
+ .game-board{border-radius:20px}
+ .play-side{padding:20px}
+ .side-title{font-size:.9rem;margin-bottom:15px}
+ .side-title strong{font-size:1rem}
+ .battle-lane{min-height:218px;gap:18px}
+ .leader-slot,.leader-slot .table-card{width:118px}
+ .characters{gap:13px;justify-items:center}
+ .characters .table-card,.empty-slot{max-width:118px}
+ .life-area{width:62px}
+ .life-area>strong{font-size:2.15rem}
+ .resource-row{margin-top:12px;gap:16px}
+ .don-pool{padding:10px 14px}
+ .stage-slot{width:104px}
+ .stage-slot .table-card,.stage-empty{width:92px}
+ .hand-area{padding:18px}
+ .hand-cards{--hand-width:120px;min-height:202px;padding-top:22px}
+ .decision,.turn-controls{padding:18px}
+ .play-console .notice{padding:0 6px}
+}
