@@ -60,7 +60,7 @@ export class Engine {
       assert(c.zone==='hand','只能从手牌使用');const d=this.def(c);
       if(d.type==='事件'){const idx=this.actions(c).findIndex(a=>a.proc.ActivateMain);assert(idx>=0,'这张事件不能在主要阶段使用');this.beginAction(c,idx);return}
       assert(['角色','舞台'].includes(d.type),'不能登场');const cost=this.cost(c);assert(this.readyDon(owner).length>=cost,'可用 DON!! 不足');
-      if(d.type==='角色'&&this.list(owner,'field').length===5){this.ask({type:'replace',owner,candidates:this.s.players[owner].field.slice(),min:1,max:1,card:c.uid,title:'角色区已满，选择一张角色丢弃'});return}
+      if(d.type==='角色')assert(!this.s.noPlayCharacters?.[owner],'本回合不能从手牌登场角色');if(d.type==='角色'&&this.list(owner,'field').length===5){this.ask({type:'replace',owner,candidates:this.s.players[owner].field.slice(),min:1,max:1,card:c.uid,title:'角色区已满，选择一张角色丢弃'});return}
       this.pay(owner,cost);if(d.type==='舞台')for(const old of this.list(owner,'stage'))this.move(old,'trash');this.deploy(c);return;
     }
     if(cmd.type==='attach'){
@@ -153,7 +153,7 @@ export class Engine {
       for(const c of this.board(o)){if(!c.freeze)c.rested=false;delete c.freeze;for(const d of this.attached(c))delete d.attached;c.mods=c.mods.filter(m=>!(m.until==='ownerStart'&&m.owner===o));}if(this.s.noTakeLife)delete this.s.noTakeLife[o];
       this.don(o).forEach(d=>d.rested=false);if(this.s.turn!==1)this.draw(o,1);const n=Math.min(this.s.turn===1?1:2,p.donReserve.length);for(let k=0;k<n;k++)this.move(this.list(o,'donReserve')[0],'don');this.log(`${this.label(o)} 的第 ${p.turns} 回合，获得 ${n} 张 DON!!`);this.emit('StartOfTurn',null,{owner:o});this.emit('StartOfMainPhase',null,{owner:o});return;
     }
-    if(t.kind==='finishTurn'){const o=this.s.active;for(const c of Object.values(this.s.cards))c.mods=c.mods.filter(m=>m.until==='ownerStart'||m.until==='ownerEnd'&&m.owner!==o||m.until==='oppEnd'&&m.owner===o);if(this.s.noActivateDon)delete this.s.noActivateDon[o];this.s.active=1-o;this.s.queue.push({kind:'beginTurn'});return}
+    if(t.kind==='finishTurn'){const o=this.s.active;for(const c of Object.values(this.s.cards))c.mods=c.mods.filter(m=>m.until==='ownerStart'||m.until==='ownerEnd'&&m.owner!==o||m.until==='oppEnd'&&m.owner===o);if(this.s.noActivateDon)delete this.s.noActivateDon[o];if(this.s.noPlayCharacters)delete this.s.noPlayCharacters[o];this.s.active=1-o;this.s.queue.push({kind:'beginTurn'});return}
     if(t.kind==='offer'){const c=this.s.cards[t.uid],a=this.actions(c)[t.index],cost=a?.steps[0]?.effect||{};if(a&&this.conditions(a.proc,c,t.context)&&(!a.proc.OncePerTurn||c.used[t.index]!==this.s.turn)&&this.readyDon(c.owner).length>=(cost.DonTap||0)&&this.don(c.owner).length>=(cost.DonMinus||0))this.beginAction(c,t.index,t.context,true);return}
     if(t.kind==='effect'){this.effectStep(t);return}
     if(t.kind==='block'){
@@ -266,7 +266,7 @@ export class Engine {
     if(e.TurnEndActivateDon){this.s.donActivations??=[];this.s.donActivations.push({owner:o,turn:this.s.turn,count:e.TurnEndActivateDon});this.log(`${this.name(c)}：将在回合结束时激活 ${e.TurnEndActivateDon} 张 DON!!`);}
     if(e.DealDamage)this.s.queue.push({kind:'damage',owner:1-o});
     if(e.NoTakeLifeToTurnStart){this.s.noTakeLife??={};this.s.noTakeLife[o]=true;}
-    if(e.CantActivateDonToTurnEnd){this.s.noActivateDon??={};this.s.noActivateDon[o]=true;}
+    if(e.CantActivateDonToTurnEnd){this.s.noActivateDon??={};this.s.noActivateDon[o]=true;}if(e.CantPlayAnyCharactersToField){this.s.noPlayCharacters??={};this.s.noPlayCharacters[o]=true;}
     if(e.OppTrashRandom){const xs=this.shuffle(this.list(1-o,'hand').slice()).slice(0,e.OppTrashRandom);for(const x of xs)this.move(x,'trash');this.log(`${this.label(1-o)} 随机丢弃 ${xs.length} 张手牌`);}
     if(e.GainActiveDon||e.GainRestedDon){const n=e.GainActiveDon||e.GainRestedDon;for(const d of this.list(o,'donReserve').slice(0,n))this.move(d,'don',{rested:!!e.GainRestedDon});}
     if(e.MillDeck)for(const x of this.list(o,'deck').slice(0,e.MillDeck))this.move(x,'trash');

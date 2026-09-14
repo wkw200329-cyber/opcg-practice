@@ -51,6 +51,7 @@ implemented.effect.add('CantActivateDonToTurnEnd');
 implemented.effect.add('OtherCharsImmuneToNoncombatKO');
 ['CostCombinedLifeOrLess','CostOppDonOrLess'].forEach(k=>implemented.target.add(k));
 implemented.effect.add('TrashLifeTo');
+implemented.effect.add('CantPlayAnyCharactersToField');
 ['ImmuneToRest','GainCombatImmuneToStart'].forEach(k=>implemented.effect.add(k));
 ['SwapBasePower','SwapBasePowerWithLeader'].forEach(k=>implemented.effect.add(k));
 implemented.target.add('TargetCountHandOverflow');
