@@ -269,6 +269,7 @@ export class Engine {
     if(e.Heal)for(const x of this.list(o,'deck').slice(0,e.Heal))this.move(x,'life',{faceUp:!!e.ForcedFaceUp});
     if(e.TakeTopLife||e.TakeBottomLife){const ls=this.list(o,'life');if(e.TakeBottomLife)ls.reverse();for(const x of ls.slice(0,e.TakeTopLife||e.TakeBottomLife))this.move(x,'hand');}
     if(e.TrashTopLife||e.TrashBottomLife){const ls=this.list(o,'life');if(e.TrashBottomLife)ls.reverse();for(const x of ls.slice(0,e.TrashTopLife||e.TrashBottomLife))this.move(x,'trash');}
+    if(e.TrashLifeTo!==undefined)while(this.list(o,'life').length>e.TrashLifeTo)this.move(this.list(o,'life')[0],'trash');
     if(e.DeploySelf)this.deploy(c,!!e.DeploysRested);
     if(e.TrashAllFaceUpLife)for(const x of this.list(o,'life').filter(x=>x.faceUp))this.move(x,'trash');
     if(e.TopDeckToLife||e.TopDeckToOppLife){const lifeOwner=e.TopDeckToOppLife?1-o:o;for(const u of [...(t.order||t.revealed?.uids||[])].reverse()){const x=this.s.cards[u];if(x.zone==='life'&&x.owner===lifeOwner)this.move(x,'life',{faceUp:x.faceUp});}this.log(`${this.label(lifeOwner)} 重新排列生命牌`);}
