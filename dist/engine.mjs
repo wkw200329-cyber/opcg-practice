@@ -150,7 +150,7 @@ export class Engine {
     if(t.kind==='setupLife'){for(let o=0;o<2;o++){const n=this.def(this.list(o,'leader')[0]).life;for(let i=0;i<n;i++)this.move(this.list(o,'deck')[0],'life',{bottom:true})}return}
     if(t.kind==='beginTurn'){
       const o=this.s.active,p=this.s.players[o];this.s.turn++;p.turns++;this.s.phase='main';
-      for(const c of this.board(o)){if(!c.freeze)c.rested=false;delete c.freeze;for(const d of this.attached(c))delete d.attached;c.mods=c.mods.filter(m=>!(m.until==='ownerStart'&&m.owner===o));}
+      for(const c of this.board(o)){if(!c.freeze)c.rested=false;delete c.freeze;for(const d of this.attached(c))delete d.attached;c.mods=c.mods.filter(m=>!(m.until==='ownerStart'&&m.owner===o));}if(this.s.noTakeLife)delete this.s.noTakeLife[o];
       this.don(o).forEach(d=>d.rested=false);if(this.s.turn!==1)this.draw(o,1);const n=Math.min(this.s.turn===1?1:2,p.donReserve.length);for(let k=0;k<n;k++)this.move(this.list(o,'donReserve')[0],'don');this.log(`${this.label(o)} 的第 ${p.turns} 回合，获得 ${n} 张 DON!!`);this.emit('StartOfTurn',null,{owner:o});this.emit('StartOfMainPhase',null,{owner:o});return;
     }
     if(t.kind==='finishTurn'){const o=this.s.active;for(const c of Object.values(this.s.cards))c.mods=c.mods.filter(m=>m.until==='ownerStart'||m.until==='ownerEnd'&&m.owner!==o||m.until==='oppEnd'&&m.owner===o);this.s.active=1-o;this.s.queue.push({kind:'beginTurn'});return}
@@ -169,6 +169,7 @@ export class Engine {
       this.s.queue.push({kind:'battleEnd'});return;
     }
     if(t.kind==='damage'){
+      if(this.s.noTakeLife?.[t.owner]){this.log(`${this.label(t.owner)} 免除一次生命伤害`);return;}
       const c=this.list(t.owner,'life')[0];if(!c)return;
       if(t.banish){this.move(c,'trash');return}const index=this.actions(c).findIndex(a=>a.proc.Trigger);
       if(index>=0)this.ask({type:'lifeTrigger',owner:t.owner,card:c.uid,index,title:'生命牌有触发效果：发动，或加入手牌'});else this.move(c,'hand');return;
@@ -260,6 +261,7 @@ export class Engine {
     if(e.DrawCards)this.draw(o,e.DrawCards);
     if(e.TurnEndActivateDon){this.s.donActivations??=[];this.s.donActivations.push({owner:o,turn:this.s.turn,count:e.TurnEndActivateDon});this.log(`${this.name(c)}：将在回合结束时激活 ${e.TurnEndActivateDon} 张 DON!!`);}
     if(e.DealDamage)this.s.queue.push({kind:'damage',owner:1-o});
+    if(e.NoTakeLifeToTurnStart){this.s.noTakeLife??={};this.s.noTakeLife[o]=true;}
     if(e.OppTrashRandom){const xs=this.shuffle(this.list(1-o,'hand').slice()).slice(0,e.OppTrashRandom);for(const x of xs)this.move(x,'trash');this.log(`${this.label(1-o)} 随机丢弃 ${xs.length} 张手牌`);}
     if(e.GainActiveDon||e.GainRestedDon){const n=e.GainActiveDon||e.GainRestedDon;for(const d of this.list(o,'donReserve').slice(0,n))this.move(d,'don',{rested:!!e.GainRestedDon});}
     if(e.MillDeck)for(const x of this.list(o,'deck').slice(0,e.MillDeck))this.move(x,'trash');
