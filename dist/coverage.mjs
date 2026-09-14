@@ -34,3 +34,6 @@ implemented.proc.add('QueuedEndOfTurn');['QueueUpEndOfTurnAction','DonMinusToOpp
 
 ['TopDeckToLife','TopDeckToOppLife','TrashAllFaceUpLife'].forEach(k=>implemented.effect.add(k));
 ['TransferDon','TurnEndActivateDon','MatchOpponentPowerUntilTurnEnd','DealDamage'].forEach(k=>implemented.effect.add(k));
+implemented.target.add('SecondCostOrLess');
+implemented.target.add('OverrideUITargetCount');
+['BuffCombatXPerPrevTargets','FieldBasePowerChange'].forEach(k=>implemented.effect.add(k));
