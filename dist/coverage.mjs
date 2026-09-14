@@ -53,3 +53,5 @@ implemented.effect.add('OtherCharsImmuneToNoncombatKO');
 implemented.effect.add('TrashLifeTo');
 ['ImmuneToRest','GainCombatImmuneToStart'].forEach(k=>implemented.effect.add(k));
 ['SwapBasePower','SwapBasePowerWithLeader'].forEach(k=>implemented.effect.add(k));
+implemented.target.add('TargetCountHandOverflow');
+['SaveTargetCount','SaveHandSize','DrawSavedCount'].forEach(k=>implemented.effect.add(k));

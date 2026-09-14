@@ -241,7 +241,7 @@ export class Engine {
     const ts=browseZone?[]:step.target||[];
     while(t.group<ts.length){const target=ts[t.group];let candidates=Object.values(this.s.cards).filter(x=>this.matchesGroup(x,step,t.group,c,t));if(target.AutoSelf)candidates=candidates.filter(x=>x.uid===c.uid);if(target.AutoCopyPreviousTargets)candidates=t.previous.map(u=>this.s.cards[u]);
       if(target.AutoSelf||target.AutoCopyPreviousTargets||target.AutoAllMatchingTargets){t.targets[t.group]=candidates.map(x=>x.uid);t.group++;continue}
-      const requiredCount=e.DonMinusToOppCount?e.DonMinus:e.DonMinus||target.OverrideUITargetCount||target.TargetCount||1;if(requiredCount===0){t.targets[t.group]=[];t.group++;continue}
+      const requiredCount=e.DonMinusToOppCount?e.DonMinus:e.DonMinus||target.OverrideUITargetCount||target.TargetCount||(target.TargetCountHandOverflow?Math.max(0,this.list(c.owner,'hand').length-target.TargetCountHandOverflow):1);if(requiredCount===0){t.targets[t.group]=[];t.group++;continue}
       let max=Math.min(requiredCount,candidates.length),min=step.details?.FullTargetsRequired?.includes(t.group)?requiredCount:0;
       if(target.NoDuplicateNames)max=Math.min(max,new Set(candidates.map(x=>this.rule(x).characterName)).size);if(max<min)return;if(!candidates.length){t.targets[t.group]=[];t.group++;continue}
       this.ask({type:'targets',owner:e.ForceOpponent?1-c.owner:c.owner,candidates:candidates.map(x=>x.uid),min,max,group:t.group,task:t,cancelAllowed:!step.details?.NoCancel&&!(t.group>0&&step.details?.FullTargetsRequired?.includes(t.group)),title:`${this.name(c)}：选择${min?min:'最多 '+max}张目标`});return;
@@ -255,6 +255,9 @@ export class Engine {
     const o=e.ForceOpponent?1-c.owner:c.owner;
     if(e.QueueUpEndOfTurnAction&&c.owner===this.s.active){const index=e.QueueUpEndOfTurnAction,action=this.actions(c)[index];assert(action?.proc.QueuedEndOfTurn,'延迟效果索引无效');this.s.endings??=[];this.s.endings.push({id:`ending-${++this.serial}`,owner:c.owner,turn:this.s.turn,uid:c.uid,index,action:clone(action),incarnation:c.incarnation||0});this.log(`${this.name(c)}：已登记本回合结束时结算的效果`);}
     if(e.DonTap)this.pay(o,e.DonTap);
+    if(e.SaveTargetCount)t.savedTargetCount=targets.length;
+    if(e.SaveHandSize)t.savedHandSize=this.list(o,'hand').length;
+    if(e.DrawSavedCount)this.draw(o,t.savedTargetCount??t.savedHandSize??0);
     if(e.RestSelf){assert(!c.rested,'该卡已横置');c.rested=true;this.emit('OnRest',c,{owner:c.owner})}
     if(e.TrashSelf)this.move(c,'trash');
     if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o});}
