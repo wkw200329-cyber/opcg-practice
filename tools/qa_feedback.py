@@ -1,0 +1,35 @@
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    browser=p.chromium.launch()
+    for width in [390,1095]:
+        page=browser.new_page(viewport={'width':width,'height':1000})
+        errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+        page.add_init_script('''window.fxSeen=[];new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1&&n.classList.contains('game-fx'))window.fxSeen.push({kind:n.className.baseVal||n.className,text:n.textContent})}))).observe(document,{subtree:true,childList:true});''')
+        page.goto('http://127.0.0.1:4173',wait_until='networkidle')
+        page.locator('[data-act="start"]').click()
+        assert 'P1' in page.locator('.operation-guide').inner_text()
+        page.locator('[data-answer="keep"]').click()
+        assert 'P2' in page.locator('.operation-guide').inner_text()
+        page.locator('[data-answer="keep"]').click()
+        page.locator('.self .leader-slot button').click()
+        assert '第一个回合不能攻击' in page.locator('.action-reason').inner_text()
+        page.locator('[data-attachuid]').click()
+        page.wait_for_function("fxSeen.some(x=>x.text.includes('力量 +1000'))")
+        page.locator('[data-gamecommand="endTurn"]').click()
+        page.wait_for_function("fxSeen.some(x=>x.kind.includes('card-flight'))")
+        page.locator('[data-gamecommand="endTurn"]').click()
+        page.locator('.self .leader-slot button').click();page.locator('[data-attackuid]').click()
+        page.locator('.opponent .leader-slot button').click()
+        page.wait_for_function("fxSeen.some(x=>x.kind.includes('attack-fx'))")
+        assert 'P2 · 反击阶段' in page.locator('.operation-guide').inner_text()
+        page.locator('[data-answer="finish"]').click()
+        page.wait_for_function("fxSeen.some(x=>x.text.includes('生命 -1'))")
+        page.locator('[data-gamecommand="undo"]').click()
+        assert page.locator('.game-fx').count()==0
+        assert 'P2 · 反击阶段' in page.locator('.operation-guide').inner_text()
+        assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
+        assert not errors,errors
+        print(f'{width}px: player prompts, first-turn reason, power delta, draw flight, attack arrow, life loss, undo cleanup passed')
+        page.close()
+    browser.close()
