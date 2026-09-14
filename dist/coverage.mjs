@@ -55,3 +55,4 @@ implemented.effect.add('TrashLifeTo');
 ['SwapBasePower','SwapBasePowerWithLeader'].forEach(k=>implemented.effect.add(k));
 implemented.target.add('TargetCountHandOverflow');
 ['SaveTargetCount','SaveHandSize','DrawSavedCount'].forEach(k=>implemented.effect.add(k));
+['PassiveBasePowerMatchLeader','MatchLeaderToBasePowerUntilTurnEnd'].forEach(k=>implemented.effect.add(k));
