@@ -49,3 +49,4 @@ implemented.proc.add('LeaderPowerZero');
 implemented.effect.add('NoTakeLifeToTurnStart');
 implemented.effect.add('CantActivateDonToTurnEnd');
 implemented.effect.add('OtherCharsImmuneToNoncombatKO');
+['CostCombinedLifeOrLess','CostOppDonOrLess'].forEach(k=>implemented.target.add(k));
