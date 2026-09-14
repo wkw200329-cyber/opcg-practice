@@ -32,7 +32,7 @@ export class Engine {
   }
   start(decks,first=0){
     assert(first===0||first===1,'先攻方无效');decks.forEach((d,i)=>{assert(!this.validateDeck(d).length,`${this.label(i)}：${this.validateDeck(d).join('；')}`);const pending=Object.keys(d.cards).filter(id=>unsupported(this.rules[id]||{}).length);assert(!pending.length,`${this.label(i)} 的 ${pending.slice(0,5).join('、')} 特殊效果尚未迁移，暂时不能自动对战`)});
-    this.s={version:1,turn:0,active:first,first,phase:'mulligan',cards:{},players:[],queue:[],prompt:null,battle:null,winner:null,log:[],events:[],endings:[]};this.history=[];this.serial=0;
+    this.s={version:1,turn:0,active:first,first,phase:'mulligan',cards:{},players:[],queue:[],prompt:null,battle:null,winner:null,log:[],events:[],endings:[],donActivations:[]};this.history=[];this.serial=0;
     for(let i=0;i<2;i++)this.s.players.push({name:decks[i].name,turns:0,leader:[],field:[],stage:[],hand:[],deck:[],life:[],trash:[],reveal:[],don:[],donReserve:[],removed:[]});
     decks.forEach((d,i)=>{for(const[id,n]of Object.entries(d.cards)){for(let k=0;k<n;k++)this.card(id,i,this.db[id].type==='领袖'?'leader':'deck')}this.shuffle(this.s.players[i].deck);for(let k=0;k<10;k++)this.card('DON',i,'donReserve');this.draw(i,5,false)});
     this.s.queue=[{kind:'mulligan',owner:first},{kind:'mulligan',owner:1-first},{kind:'setupLife'},{kind:'beginTurn'}];this.pump();return this.s;
@@ -143,7 +143,7 @@ export class Engine {
   pump(){let n=0;while(!this.s.prompt&&(this.s.queue.length||this.s.events.length||this.s.interruptions?.length)&&this.s.winner===null){assert(++n<1000,'效果循环超过安全上限');if(this.s.interruptions?.length){this.s.queue.unshift(...this.s.interruptions);this.s.interruptions=[];}else if(this.s.events.length&&!['effect','effectDeployment'].includes(this.s.queue[0]?.kind)){this.s.queue.unshift(...this.s.events);this.s.events=[];}const t=this.s.queue.shift();this.task(t)}}
   resolveEnding(entry){this.s.endings=this.s.endings.filter(x=>x.id!==entry.id);this.s.queue.unshift({kind:'effect',uid:entry.uid,index:entry.index,action:entry.action,step:0,group:0,targets:[],previous:[],context:{delayed:true,incarnation:entry.incarnation}},{kind:'delayedEndTurn',owner:entry.owner});this.log(`${this.label(entry.owner)} 结算 ${this.name(this.s.cards[entry.uid])} 的回合结束效果`);}
   task(t){
-    if(t.kind==='delayedEndTurn'){const entries=(this.s.endings||[]).filter(x=>x.owner===t.owner&&x.turn<=this.s.turn);if(entries.length>1){this.ask({type:'endOrder',owner:t.owner,entries,title:'有多个延迟效果，请选择先结算哪一个'});return}if(entries.length)this.resolveEnding(entries[0]);return}
+    if(t.kind==='delayedEndTurn'){const activations=(this.s.donActivations||[]).filter(x=>x.owner===t.owner&&x.turn<=this.s.turn);if(activations.length){this.s.donActivations=this.s.donActivations.filter(x=>!activations.includes(x));const n=activations.reduce((sum,x)=>sum+x.count,0),ds=this.restDon(t.owner).slice(0,n);for(const d of ds)d.rested=false;this.log(`${this.label(t.owner)} 在回合结束时激活 ${ds.length} 张 DON!!`);}const entries=(this.s.endings||[]).filter(x=>x.owner===t.owner&&x.turn<=this.s.turn);if(entries.length>1){this.ask({type:'endOrder',owner:t.owner,entries,title:'有多个延迟效果，请选择先结算哪一个'});return}if(entries.length)this.resolveEnding(entries[0]);return}
     if(t.kind==='effectDeployment'){const c=this.s.cards[t.uid];if(this.list(c.owner,'field').length>=5){this.ask({type:'effectDeployReplace',owner:c.owner,card:c.uid,rested:t.rested,candidates:this.s.players[c.owner].field.slice(),min:1,max:1,title:'效果登场：角色区已满，选择一张角色丢弃'});return}this.deploy(c,t.rested);return}
     if(t.kind==='removal'){runRemoval(this,t);return}
     if(t.kind==='mulligan'){this.ask({type:'mulligan',owner:t.owner,title:'选择保留起手，或将全部手牌洗回后重抽一次'});return}
@@ -254,6 +254,8 @@ export class Engine {
     if(e.TrashSelf)this.move(c,'trash');
     if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o});}
     if(e.DrawCards)this.draw(o,e.DrawCards);
+    if(e.TurnEndActivateDon){this.s.donActivations??=[];this.s.donActivations.push({owner:o,turn:this.s.turn,count:e.TurnEndActivateDon});this.log(`${this.name(c)}：将在回合结束时激活 ${e.TurnEndActivateDon} 张 DON!!`);}
+    if(e.DealDamage)this.s.queue.push({kind:'damage',owner:1-o});
     if(e.OppTrashRandom){const xs=this.shuffle(this.list(1-o,'hand').slice()).slice(0,e.OppTrashRandom);for(const x of xs)this.move(x,'trash');this.log(`${this.label(1-o)} 随机丢弃 ${xs.length} 张手牌`);}
     if(e.GainActiveDon||e.GainRestedDon){const n=e.GainActiveDon||e.GainRestedDon;for(const d of this.list(o,'donReserve').slice(0,n))this.move(d,'don',{rested:!!e.GainRestedDon});}
     if(e.MillDeck)for(const x of this.list(o,'deck').slice(0,e.MillDeck))this.move(x,'trash');
@@ -270,6 +272,8 @@ export class Engine {
     if(e.SendTopLifeToBot&&this.list(o,'life')[0]){const top=this.list(o,'life')[0];this.move(top,'life',{bottom:true,faceUp:top.faceUp});}
     if(e.SendOppTopLifeToBot&&this.list(1-o,'life')[0]){const top=this.list(1-o,'life')[0];this.move(top,'life',{bottom:true,faceUp:top.faceUp});}
     const removalGroup=`effect-removal-${++this.serial}`;
+    if(e.TransferDon){const donor=targets.find(x=>x.zone==='don'&&x.owner===o&&x.attached),recipient=targets.find(x=>x.owner===o&&['leader','field'].includes(x.zone));if(donor&&recipient){donor.attached=recipient.uid;this.log(`${this.name(c)}：转移 1 张 DON!!`);}}
+    if(e.MatchOpponentPowerUntilTurnEnd&&targets[0])this.mod(c,'basePower',this.power(targets[0]),'ownerEnd');
     for(const x of targets){
       for(const[k,until]of [['BuffPower','turn'],['BuffPowerToOppEnd','oppEnd'],['BuffPowerToOwnersEnd','ownerEnd'],['BuffPowerToOwnersStart','ownerStart'],['BuffCombatPower','battle']])if(e[k])this.mod(x,'power',e[k],until);
       if(e.SetBasePower)this.mod(x,'basePower',e.SetBasePower);if(e.ChangeCost)this.mod(x,'cost',e.ChangeCost);if(e.ChangeCostToOppEnd)this.mod(x,'cost',e.ChangeCostToOppEnd,'oppEnd');
