@@ -47,7 +47,8 @@ body.fit-mode> #app>header{height:42px;padding:0 12px}.fit-mode header .brand sm
 /* Wide screens use the available desk before switching to the compact whole-table view. */
 @media(min-width:1101px){
  .shell{max-width:1760px;padding:22px 40px 44px}
- .table-layout{grid-template-columns:minmax(0,1fr) 400px;gap:24px}
+ .table-layout{grid-template-columns:minmax(0,1fr) 500px;gap:24px}
+ .play-console{display:flex;flex-direction:column;min-height:100%}
  .game-board{border-radius:20px}
  .play-side{padding:20px}
  .side-title{font-size:.9rem;margin-bottom:15px}
@@ -63,7 +64,9 @@ body.fit-mode> #app>header{height:42px;padding:0 12px}.fit-mode header .brand sm
  .stage-slot{width:104px}
  .stage-slot .table-card,.stage-empty{width:92px}
  .hand-area{padding:18px}
- .hand-cards{--hand-width:120px;min-height:202px;padding-top:22px}
+ .hand-cards{--hand-width:132px;min-height:218px;padding-top:22px}
  .decision,.turn-controls{padding:18px}
  .play-console .notice{padding:0 6px}
 }
+
+.console-status{margin-top:auto;padding-top:18px}.console-status .table-head{margin:0 0 10px}.console-status .table-head h2{margin:0;font-size:1.15rem}.console-status .operation-guide{margin:0}.console-status .operation-guide p{margin-bottom:0}
