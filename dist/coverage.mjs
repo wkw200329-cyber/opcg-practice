@@ -43,3 +43,5 @@ implemented.target.add('GivenDon');
 ['PowerXOrMore','OppCharPowerXOrMore','OppNo2CharsBaseXOrMore','SelfNo2CharsPowXOrMore','SelfRestedCharacterCategory'].forEach(k=>implemented.proc.add(k));
 ['OnRest','AnotherCharacterOfCategory'].forEach(k=>implemented.proc.add(k));
 implemented.effect.add('OptionalReturnDon');
+implemented.proc.add('LeaderPowerZero');
+['Passive1KPerXTrash','Passive1KPerXEventTrash','Passive1KPerXRestedDon','Passive2CostPerXTrash','SetPowerToZero','SetBasePowerToZero'].forEach(k=>implemented.effect.add(k));
