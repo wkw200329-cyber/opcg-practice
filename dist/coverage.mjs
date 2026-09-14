@@ -38,5 +38,8 @@ implemented.target.add('SecondCostOrLess');
 implemented.target.add('OverrideUITargetCount');
 implemented.target.add('CostOppLifeOrLess');
 implemented.target.add('CostDonOrLess');
+implemented.target.add('GivenDon');
 ['BuffCombatXPerPrevTargets','BuffXPerPrevTargets','FieldBasePowerChange'].forEach(k=>implemented.effect.add(k));
 ['PowerXOrMore','OppCharPowerXOrMore','OppNo2CharsBaseXOrMore','SelfNo2CharsPowXOrMore','SelfRestedCharacterCategory'].forEach(k=>implemented.proc.add(k));
+['OnRest','AnotherCharacterOfCategory'].forEach(k=>implemented.proc.add(k));
+implemented.effect.add('OptionalReturnDon');
