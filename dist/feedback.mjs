@@ -22,6 +22,12 @@ export function animateResult(e,before,command){
  for(const c of Object.values(e.s.cards)){
   const old=before.cards[c.uid],el=find(c.uid);if(!old)continue;
   if(old.power!==null&&['field','leader'].includes(c.zone)){const d=e.power(c)-old.power;if(d)burst(el,`力量 ${d>0?'+':''}${d}`,d<0);}
+  if(['field','stage'].includes(old.zone)&&c.zone==='trash'){
+   const anchor=old.rect?{getBoundingClientRect:()=>old.rect}:null;
+   burst(anchor,'KO!',true);
+   const grave=document.querySelector(`[data-zone="${c.owner}:trash"]`);
+   if(grave&&!reduced)grave.animate([{transform:'scale(1)',filter:'brightness(1)'},{transform:'scale(1.12)',filter:'brightness(1.8)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:520});
+  }
   if(old.zone!==c.zone&&['hand','field','stage'].includes(c.zone)){
    if(el&&!reduced)el.animate([{filter:'brightness(1.8)',transform:'translateY(-9px)'},{filter:'brightness(1)',transform:'translateY(0)'}],{duration:450});
    if(old.zone==='deck'&&c.zone==='hand'&&el&&!reduced&&flights++<3){
@@ -31,7 +37,7 @@ export function animateResult(e,before,command){
    }
   }
  }
- e.s.players.forEach((p,o)=>{const d=p.life.length-before.life[o];if(d)burst(document.querySelector(`[data-life-anchor="${o}"]`),`生命 ${d>0?'+':''}${d}`,d<0);});
+ e.s.players.forEach((p,o)=>{const d=p.life.length-before.life[o];if(d){const anchor=document.querySelector(`[data-life-anchor="${o}"]`);burst(anchor,`生命 ${d>0?'+':''}${d}`,d<0);if(d<0&&anchor&&!reduced)anchor.animate([{transform:'scale(1)',filter:'brightness(1)'},{transform:'scale(1.38)',filter:'brightness(2.2) saturate(1.8)'},{transform:'scale(1)',filter:'brightness(1)'}],{duration:620,easing:'ease-out'});}});
  if(command.type==='attack'){
   const a=find(command.uid)?.getBoundingClientRect(),b=find(command.target)?.getBoundingClientRect();if(!a||!b)return;
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('game-fx','attack-fx');svg.setAttribute('viewBox',`0 0 ${innerWidth} ${innerHeight}`);
