@@ -32,4 +32,4 @@ implemented.proc.add('OrDonIsZero');implemented.details.add('OppPowerXOrMore');
 
 implemented.proc.add('QueuedEndOfTurn');['QueueUpEndOfTurnAction','DonMinusToOppCount'].forEach(k=>implemented.effect.add(k));
 
-['TopDeckToLife','TrashAllFaceUpLife'].forEach(k=>implemented.effect.add(k));
+['TopDeckToLife','TopDeckToOppLife','TrashAllFaceUpLife'].forEach(k=>implemented.effect.add(k));

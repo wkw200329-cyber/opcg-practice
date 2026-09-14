@@ -233,7 +233,7 @@ export class Engine {
       if(e.StartTopDeck||e.StartTopDeckOpp||e.StartTopDeckFromTrash||e.StartTopDeckFromOppTrash||e.StartTopDeckFromHand||e.StartTopDeckFromDeck||e.StartTopDeckFromLifeAll||e.StartTopDeckFromOppLifeAll){let xs=this.list(owner,from);if(e.StartTopDeck||e.StartTopDeckOpp)xs=xs.slice(0,e.StartTopDeck||e.StartTopDeckOpp);if(browseZone&&step.target?.length)xs=xs.filter(x=>step.target.some((filter,i)=>this.matchesGroup(x,step,i,c,t)));t.revealed={owner,from,uids:xs.map(x=>x.uid)};}
       t.prepared=true;
     }
-    if((e.TopDeckToDeckBottom||e.TopDeckToDeckTop||e.TopDeckToLife)&&!t.order){const remaining=(t.revealed?.uids||[]).filter(u=>this.s.cards[u].zone===t.revealed.from);if(remaining.length>1){this.ask({type:'order',owner:c.owner,candidates:remaining,min:remaining.length,max:remaining.length,task:t,destination:e.TopDeckToLife?'生命区':'牌库',title:e.TopDeckToLife?'按从上到下的顺序点击生命牌，确认排列':'按从上到下的顺序点击剩余卡牌，确认放回牌库'});return}t.order=remaining;}
+    if((e.TopDeckToDeckBottom||e.TopDeckToDeckTop||e.TopDeckToLife||e.TopDeckToOppLife)&&!t.order){const remaining=(t.revealed?.uids||[]).filter(u=>this.s.cards[u].zone===t.revealed.from);if(remaining.length>1){const life=e.TopDeckToLife||e.TopDeckToOppLife;this.ask({type:'order',owner:c.owner,candidates:remaining,min:remaining.length,max:remaining.length,task:t,destination:life?'生命区':'牌库',title:life?'按从上到下的顺序点击生命牌，确认排列':'按从上到下的顺序点击剩余卡牌，确认放回牌库'});return}t.order=remaining;}
     if(e.Choices?.length&&!t.choiceDone){this.ask({type:'choice',owner:e.ForceOpponent?1-c.owner:c.owner,choices:e.Choices,task:t,title:'选择一种效果'});return}
     const ts=browseZone?[]:step.target||[];
     while(t.group<ts.length){const target=ts[t.group];let candidates=Object.values(this.s.cards).filter(x=>this.matchesGroup(x,step,t.group,c,t));if(target.AutoSelf)candidates=candidates.filter(x=>x.uid===c.uid);if(target.AutoCopyPreviousTargets)candidates=t.previous.map(u=>this.s.cards[u]);
@@ -262,7 +262,7 @@ export class Engine {
     if(e.TrashTopLife||e.TrashBottomLife){const ls=this.list(o,'life');if(e.TrashBottomLife)ls.reverse();for(const x of ls.slice(0,e.TrashTopLife||e.TrashBottomLife))this.move(x,'trash');}
     if(e.DeploySelf)this.deploy(c,!!e.DeploysRested);
     if(e.TrashAllFaceUpLife)for(const x of this.list(o,'life').filter(x=>x.faceUp))this.move(x,'trash');
-    if(e.TopDeckToLife){for(const u of [...(t.order||t.revealed?.uids||[])].reverse()){const x=this.s.cards[u];if(x.zone==='life'&&x.owner===o)this.move(x,'life',{faceUp:x.faceUp});}this.log(`${this.label(o)} 重新排列生命牌`);}
+    if(e.TopDeckToLife||e.TopDeckToOppLife){const lifeOwner=e.TopDeckToOppLife?1-o:o;for(const u of [...(t.order||t.revealed?.uids||[])].reverse()){const x=this.s.cards[u];if(x.zone==='life'&&x.owner===lifeOwner)this.move(x,'life',{faceUp:x.faceUp});}this.log(`${this.label(lifeOwner)} 重新排列生命牌`);}
     if(e.TrashOppLife)for(const x of this.list(1-o,'life').slice(0,e.TrashOppLife))this.move(x,'trash');
     if(e.OppTakeLife)for(const x of this.list(1-o,'life').slice(0,e.OppTakeLife))this.move(x,'hand');
     if(e.FlipTopLifeUp&&this.list(o,'life')[0])this.list(o,'life')[0].faceUp=true;
