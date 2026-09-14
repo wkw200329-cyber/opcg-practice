@@ -39,7 +39,7 @@ export class GameSound {
  }
  async buffer(name){
   const file=files[name];if(!file)return null;
-  if(!this.buffers[file])this.buffers[file]=fetch(new URL(`./audio/${file}.wav${file==='damage'?'?v=2':''}`,import.meta.url)).then(r=>{if(!r.ok)throw Error('Audio unavailable');return r.arrayBuffer();}).then(b=>this.context.decodeAudioData(b)).catch(()=>null);
+  if(!this.buffers[file])this.buffers[file]=fetch(new URL(`./audio/${file}.wav${file==='damage'?'?v=2':''}`,location.href)).then(r=>{if(!r.ok)throw Error('Audio unavailable');return r.arrayBuffer();}).then(b=>this.context.decodeAudioData(b)).catch(()=>null);
   return this.buffers[file];
  }
  track(source){this.sources.add(source);source.onended=()=>{source.disconnect();this.sources.delete(source);};}
