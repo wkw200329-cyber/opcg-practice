@@ -298,3 +298,33 @@ test('OP04-080 grants active-character attack permission to one friendly Dressro
   assert.equal(e.matchesGroup(ally,action.steps[0],0,c,{}),true);
   assert.equal(action.steps[0].effect.GainCanAttackActive,true);
 });
+
+test('OP02-064 trashes exactly one hand card, bottoms any cost-two-or-less character, then bottoms itself',()=>{
+  const e=game(),c=give(e,'OP02-064'),hand=e.list(0,'hand')[0],enemy=e.card('ST02-003',1,'field'),action=e.actions(c)[0];
+  attach(e,c);
+  assert.equal(action.steps[0].details.FullTargetsRequired[0],0);
+  assert.equal(e.matchesGroup(hand,action.steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(enemy,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.SendToDeckBottom,true);
+  assert.equal(action.steps[2].effect.SendToDeckBottom,true);
+});
+
+test('OP04-082 needs Rebecca, KOs one opposing cost-one-or-less character and mills one card',()=>{
+  const e=game(),c=give(e,'OP04-082'),small=e.card('EB01-015',1,'field'),large=e.card('ST02-014',1,'field'),action=e.actions(c)[0];
+  e.list(0,'leader')[0].id='OP04-039';
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(e.matchesGroup(small,action.steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(large,action.steps[0],0,c,{}),false);
+  assert.equal(action.steps[0].effect.KOCard,true);
+  assert.equal(action.steps[1].effect.MillDeck,1);
+});
+
+test('OP05-020 buffs one field character by 2000, then KOs one opposing character at 2000 power or less',()=>{
+  const e=game(),c=give(e,'OP05-020'),ally=e.card('ST01-003',0,'field'),small=e.card('EB01-015',1,'field'),large=e.card('ST02-014',1,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(ally,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.BuffPower,2000);
+  assert.equal(e.matchesGroup(small,action.steps[1],0,c,{}),true);
+  assert.equal(e.matchesGroup(large,action.steps[1],0,c,{}),false);
+  assert.equal(action.steps[1].effect.KOCard,true);
+  assert.equal(e.actions(c)[1].proc.Trigger,true);
+});
