@@ -7,6 +7,40 @@ const cards=read('cards'),rules=read('rules'),decks=read('decks');
 function game(){const e=new Engine(cards,rules,{seed:42});e.start(['ST01','ST02'].map(n=>decks.find(d=>d.name.startsWith(n))));e.dispatch({type:'choose',value:'keep'});e.dispatch({type:'choose',value:'keep'});return e;}
 function don(e,n=10){for(const c of e.list(0,'donReserve').slice(0,n-e.don(0).length))e.move(c,'don');}
 
+test('character lock blocks normal and effect deployment without payment or field replacement',()=>{
+ const e=game();don(e);const leader=e.list(0,'leader')[0],card=e.card('ST01-003',0,'hand');
+ e.applyEffects({CantPlayAnyCharactersToField:true},leader,[],{});
+ const before=JSON.stringify(e.s);assert.throws(()=>e.dispatch({type:'play',uid:card.uid}),/限制/);assert.equal(JSON.stringify(e.s),before);
+ for(let i=0;i<5;i++)e.card('ST01-003',0,'field');
+ const current=e.s.cards[card.uid];e.applyEffects({DeployCharacter:true},leader,[current],{});assert.equal(current.zone,'hand');assert.equal(e.s.prompt,null);assert.equal(e.list(0,'field').length,5);
+ const stage=e.card('ST01-017',0,'hand');assert.equal(e.canDeploy(stage),true);
+ e.task({kind:'finishTurn'});assert.equal(e.canDeploy(current),true);
+});
+
+test('Mihawk on-play refresh imposes original-cost limit after its targets resolve',()=>{
+ const e=game();don(e);const source=e.card('OP12-030',0,'hand');e.dispatch({type:'play',uid:source.uid});
+ assert.equal(e.s.prompt.type,'targets');e.dispatch({type:'choose',uids:e.s.prompt.candidates.slice(0,4)});
+ const high=e.card('OP12-030',0,'hand');e.mod(high,'cost',-10);assert.equal(e.cost(high),0);assert.equal(e.canDeploy(high),false);
+ const before=JSON.stringify(e.s);assert.throws(()=>e.dispatch({type:'play',uid:high.uid}),/限制/);assert.equal(JSON.stringify(e.s),before);
+ const low=e.card('ST01-003',0,'hand');e.mod(low,'cost',10);assert.equal(e.canDeploy(low),true);
+ const opponent=e.card('OP12-030',1,'hand');assert.equal(e.canDeploy(opponent),true);
+ e.task({kind:'finishTurn'});assert.equal(e.canDeploy(e.s.cards[high.uid]),true);
+});
+
+test('stacked cost limits keep stricter threshold and expire on current turn end',()=>{
+ const e=game(),source=e.list(1,'leader')[0],card=e.card('ST01-012',1,'trash');
+ e.applyEffects({CantPlayOriginalCostOrMore:5},source,[],{});e.applyEffects({CantPlayOriginalCostOrMore:7},source,[],{});
+ assert.equal(e.s.noPlayOriginalCost[1],5);e.applyEffects({DeployCharacter:true},source,[card],{});assert.equal(card.zone,'trash');
+ e.task({kind:'finishTurn'});assert.equal(e.canDeploy(card),true);
+});
+
+test('blocked effect deployment offers no illegal targets but still runs later steps',()=>{
+ const e=game(),source=e.list(0,'leader')[0],card=e.card('ST01-003',0,'hand');e.applyEffects({CantPlayAnyCharactersToField:true},source,[],{});
+ const before=e.list(0,'hand').length;
+ e.s.queue.push({kind:'effect',uid:source.uid,action:{proc:{},steps:[{target:[{HandCard:true,FriendlyOnly:true,OnlyTypes:['Character']}],effect:{DeployCharacter:true}},{effect:{DrawCards:1}}]},step:0,group:0,targets:[],previous:[],context:{}});
+ e.pump();assert.equal(card.zone,'hand');assert.equal(e.s.prompt,null);assert.equal(e.list(0,'hand').length,before+1);
+});
+
 test('alternate target lets EB03 Otama rest an enemy DON without permitting friendly DON',()=>{const e=game();const source=e.card('EB03-012',0,'field');const enemy=e.list(1,'donReserve')[0];e.move(enemy,'don');e.dispatch({type:'activate',uid:source.uid,index:0});assert.ok(source.rested);assert.ok(e.s.prompt.candidates.includes(enemy.uid));assert.ok(!e.s.prompt.candidates.includes(e.don(0)[0].uid));e.dispatch({type:'choose',uids:[enemy.uid]});assert.equal(enemy.rested,true);});
 
 test('ST10 Luffy gains DON at zero or eight, but not in between and not twice a turn',()=>{for(const n of [0,1,7,8]){const e=game(),l=e.list(0,'leader')[0];l.id='ST10-002';if(n===0)e.move(e.don(0)[0],'donReserve');else don(e,n);if(n===1||n===7)assert.throws(()=>e.dispatch({type:'activate',uid:l.uid,index:0}),/条件/);else{e.dispatch({type:'activate',uid:l.uid,index:0});assert.equal(e.don(0).length,n+1);assert.throws(()=>e.dispatch({type:'activate',uid:l.uid,index:0}));}}});

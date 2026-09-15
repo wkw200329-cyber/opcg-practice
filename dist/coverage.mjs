@@ -57,3 +57,5 @@ implemented.effect.add('CantPlayAnyCharactersToField');
 implemented.target.add('TargetCountHandOverflow');
 ['SaveTargetCount','SaveHandSize','DrawSavedCount'].forEach(k=>implemented.effect.add(k));
 ['PassiveBasePowerMatchLeader','MatchLeaderToBasePowerUntilTurnEnd'].forEach(k=>implemented.effect.add(k));
+
+implemented.effect.add('CantPlayOriginalCostOrMore');
