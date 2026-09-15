@@ -221,3 +221,26 @@ test('OP01-098 searches the deck only for Artificial Devil Fruit Smile, adds it 
   assert.equal(actions.steps[1].effect.SendToHand,true);
   assert.equal(actions.steps[2].effect.ShuffleDeck,true);
 });
+
+test('OP04-083 has Blocker and protects its field after drawing then trashing two hand cards',()=>{
+  const e=game(),c=give(e,'OP04-083'),actions=e.actions(c);
+  assert.equal(e.flags(c).Blocker,true);
+  assert.equal(actions[1].steps[0].effect.AllCharsEffectImmune,true);
+  assert.equal(actions[1].steps[1].target[0].TargetCount,2);
+});
+
+test('OP04-090 can attack active characters and returns exactly seven trash cards before activating and freezing itself',()=>{
+  const e=game(),c=give(e,'OP04-090'),actions=e.actions(c);
+  assert.equal(e.flags(c).CanAttackActive,true);
+  assert.equal(actions[1].steps[1].target[0].TargetCount,7);
+  assert.equal(actions[1].steps[2].effect.Freeze,true);
+});
+
+test('OP04-096 and OP04-118 give Rush only to their matching field characters',()=>{
+  const e=game(),dressrosaLeader=e.list(0,'leader')[0],source=e.card('OP04-096',0,'field'),dressrosa=e.card('OP04-079',0,'field'),redSource=e.card('OP04-118',0,'field'),red=e.card('ST01-003',0,'field');
+  dressrosaLeader.id='OP04-039';
+  assert.equal(e.flags(dressrosa).Rush,true);
+  assert.equal(e.flags(red).Rush,true);
+  e.move(source,'trash');
+  assert.equal(e.flags(dressrosa).Rush,undefined);
+});
