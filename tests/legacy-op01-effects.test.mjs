@@ -689,3 +689,12 @@ test('OP02-118 requires a hand discard for battle-only KO immunity and its trigg
   assert.equal(ally.mods.at(-1).until,'battle');
   assert.equal(e.matchesGroup(stage,actions[1].steps[0],0,c,{}),true);
 });
+
+test('OP02-025 arms exactly one cost reduction for the next eligible Wano character played from hand',()=>{
+  const e=game(),c=give(e,'OP02-025'),wano=e.card('OP01-092',0,'hand'),other=e.card('ST01-003',0,'hand'),action=e.actions(c)[0];
+  assert.equal(action.proc.CharactersOrLess,1);
+  e.applyEffects(action.steps[0].effect,c,[],{});
+  assert.equal(e.playCost(wano),e.cost(wano)-1);
+  assert.equal(e.playCost(other),e.cost(other));
+  assert.equal(e.discountApplies(wano),true);
+});
