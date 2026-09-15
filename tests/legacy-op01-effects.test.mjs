@@ -328,3 +328,24 @@ test('OP05-020 buffs one field character by 2000, then KOs one opposing characte
   assert.equal(action.steps[1].effect.KOCard,true);
   assert.equal(e.actions(c)[1].proc.Trigger,true);
 });
+
+test('OP05-079 makes the opponent return exactly the available three-or-fewer trash cards to the deck bottom',()=>{
+  const e=game(),c=give(e,'OP05-079'),a=e.card('ST02-003',1,'trash'),b=e.card('ST02-004',1,'trash'),d=e.card('ST02-005',1,'trash'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].details.FullTargetsRequired[0],0);
+  assert.equal(action.steps[0].effect.ForceOpponent,true);
+  assert.equal(action.steps[0].effect.SendToDeckBottom,true);
+  assert.equal(e.matchesGroup(a,action.steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(b,action.steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(d,action.steps[0],0,c,{}),true);
+});
+
+test('OP05-088 rests and pays one DON, returns two trash cards, then retrieves only a black cost-three-to-five character',()=>{
+  const e=game(),c=give(e,'OP05-088'),returned=e.card('ST02-003',0,'trash'),candidate=e.card('EB01-043',0,'trash'),wrong=e.card('ST01-003',0,'trash'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.DonTap,1);
+  assert.equal(action.steps[0].effect.RestSelf,true);
+  assert.equal(action.steps[1].details.FullTargetsRequired[0],0);
+  assert.equal(e.matchesGroup(returned,action.steps[1],0,c,{}),true);
+  assert.equal(e.matchesGroup(candidate,action.steps[2],0,c,{}),true);
+  assert.equal(e.matchesGroup(wrong,action.steps[2],0,c,{}),false);
+  assert.equal(action.steps[2].effect.SendToHand,true);
+});

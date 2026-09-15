@@ -257,7 +257,7 @@ export class Engine {
       if(e.DeployCharacter)candidates=candidates.filter(x=>this.canDeploy(x));
       if(target.AutoSelf||target.AutoCopyPreviousTargets||target.AutoAllMatchingTargets){t.targets[t.group]=candidates.map(x=>x.uid);t.group++;continue}
       const requiredCount=e.DonMinusToOppCount?e.DonMinus:e.DonMinus||target.OverrideUITargetCount||target.TargetCount||(target.TargetCountHandOverflow?Math.max(0,this.list(c.owner,'hand').length-target.TargetCountHandOverflow):1);if(requiredCount===0){t.targets[t.group]=[];t.group++;continue}
-      let max=Math.min(requiredCount,candidates.length),min=step.details?.FullTargetsRequired?.includes(t.group)?requiredCount:0;
+      let max=Math.min(requiredCount,candidates.length),min=step.details?.FullTargetsRequired?.includes(t.group)?max:0;
       if(target.NoDuplicateNames)max=Math.min(max,new Set(candidates.map(x=>this.rule(x).characterName)).size);if(max<min)return;if(!candidates.length){t.targets[t.group]=[];t.group++;continue}
       this.ask({type:'targets',owner:e.ForceOpponent?1-c.owner:c.owner,candidates:candidates.map(x=>x.uid),min,max,group:t.group,task:t,cancelAllowed:!step.details?.NoCancel&&!(t.group>0&&step.details?.FullTargetsRequired?.includes(t.group)),title:`${this.name(c)}：选择${min?min:'最多 '+max}张目标`});return;
     }
