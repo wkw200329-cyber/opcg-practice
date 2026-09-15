@@ -60,3 +60,5 @@ implemented.target.add('TargetCountHandOverflow');
 
 implemented.effect.add('CantPlayOriginalCostOrMore');
 ['HasNoOnPlay','HasNoOnAttack','BasePowerZero','CostEqualGivenDon'].forEach(k=>implemented.target.add(k));
+
+['CombinedCostXOrLess','CombinedPowerXOrLess','SecondCostOrLessCheckPrevTarget'].forEach(k=>implemented.target.add(k));
