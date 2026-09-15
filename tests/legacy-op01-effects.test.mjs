@@ -680,3 +680,12 @@ test('OP02-027 resists opposing effects only while every own DON is rested',()=>
   e.don(0)[0].rested=false;
   assert.equal(e.flags(c).ImmuneToOpponentNoncombat,undefined);
 });
+
+test('OP02-118 requires a hand discard for battle-only KO immunity and its trigger KOs a stage up to cost three',()=>{
+  const e=game(),c=give(e,'OP02-118','hand'),cost=e.list(0,'hand')[0],ally=e.card('ST01-003',0,'field'),stage=e.card('ST14-017',1,'stage'),actions=e.actions(c);
+  assert.equal(e.matchesGroup(cost,actions[0].steps[0],0,c,{}),true);
+  assert.equal(actions[0].steps[1].effect.GainCombatImmune,true);
+  e.applyEffects(actions[0].steps[1].effect,c,[ally],{});
+  assert.equal(ally.mods.at(-1).until,'battle');
+  assert.equal(e.matchesGroup(stage,actions[1].steps[0],0,c,{}),true);
+});
