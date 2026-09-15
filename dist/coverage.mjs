@@ -62,3 +62,5 @@ implemented.effect.add('CantPlayOriginalCostOrMore');
 ['HasNoOnPlay','HasNoOnAttack','BasePowerZero','CostEqualGivenDon'].forEach(k=>implemented.target.add(k));
 
 ['CombinedCostXOrLess','CombinedPowerXOrLess','SecondCostOrLessCheckPrevTarget'].forEach(k=>implemented.target.add(k));
+implemented.target.add('HasActivateMain');
+['ActivateMainOfCard','AllCharsEffectImmune','OpponentCanOnlyAttackMyName'].forEach(k=>implemented.effect.add(k));

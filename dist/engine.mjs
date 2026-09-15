@@ -114,6 +114,7 @@ export class Engine {
     if(this.s.players[c.owner].turns<=1)return '双方各自的第一个回合不能攻击';
     if(f.CantAttack||f.PassiveCantAttack)return '这张卡受效果限制，不能攻击';
     if(c.zone==='field'&&c.joined>=this.s.turn&&!f.Rush&&!(f.RushCharacters&&t.zone==='field'))return f.RushCharacters?'登场回合的速攻仅能攻击角色':'刚登场的角色本回合不能攻击（需要速攻）';
+    const forced=[];for(const x of this.board(1-c.owner))for(const z of this.passive(x))if(z.effect.OpponentCanOnlyAttackMyName&&!forced.some(y=>y.uid===z.source.uid))forced.push(z.source);if(forced.length&&!forced.some(x=>x.uid===t.uid))return `必须攻击 ${forced.map(x=>this.name(x)).join(' 或 ')}`;
     if(t.zone==='field'&&!t.rested&&!f.CanAttackActive)return '对方角色未横置，不能选择为攻击目标';
     return '';
   }
@@ -216,7 +217,7 @@ export class Engine {
     if(t.CostOrLess&&this.cost(c)>t.CostOrLess||t.CostOrMore&&this.cost(c)<t.CostOrMore||t.OriginalCostOrLess&&(d.cost||0)>t.OriginalCostOrLess||t.OriginalCostOrMore&&(d.cost||0)<t.OriginalCostOrMore||t.CostZero&&this.cost(c)!==0)return false;
     if(t.PowerXOrLess&&this.power(c)>t.PowerXOrLess||t.PowerXOrMore&&this.power(c)<t.PowerXOrMore||t.OriginalPowerXOrLess&&(d.power||0)>t.OriginalPowerXOrLess||t.OriginalPowerXOrMore&&(d.power||0)<t.OriginalPowerXOrMore||t.PowerZero&&this.power(c)!==0)return false;
     if(t.BasePowerZero&&(d.power||0)!==0||t.CostEqualGivenDon&&this.cost(c)!==this.attached(c).length)return false;
-    if(t.HasNoOnPlay&&this.actions(c).some(a=>a.proc.OnPlay)||t.HasNoOnAttack&&this.actions(c).some(a=>a.proc.OnAttack||a.proc.OnAttackLeader))return false;
+    if(t.HasNoOnPlay&&this.actions(c).some(a=>a.proc.OnPlay)||t.HasNoOnAttack&&this.actions(c).some(a=>a.proc.OnAttack||a.proc.OnAttackLeader)||t.HasActivateMain&&!this.actions(c).some(a=>a.proc.ActivateMain))return false;
     if(t.HasNoCounter&&this.counter(c)>0||t.HasBlocker&&!this.flags(c).Blocker||t.NotBlocker&&this.flags(c).Blocker||t.HasTrigger&&!this.actions(c).some(a=>a.proc.Trigger)||t.HasNoEffects&&this.actions(c).length)return false;
     if(t.NoUsingPreviousTargets&&ctx.previous?.includes(c.uid))return false;return true;
   }
@@ -270,6 +271,8 @@ export class Engine {
     if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o});}
     if(e.OptionalReturnDon){const ds=targets.filter(x=>x.zone==='don'&&x.owner===o);for(const d of ds){delete d.attached;this.move(d,'donReserve')}if(ds.length)this.emit('MyDonIsReturned',c,{owner:o});}
     if(e.DrawCards)this.draw(o,e.DrawCards);
+    if(e.AllCharsEffectImmune)for(const x of this.list(o,'field'))this.mod(x,'flag','ImmuneToOpponentNoncombat','oppEnd');
+    if(e.ActivateMainOfCard)for(const x of targets){const i=this.actions(x).findIndex(a=>a.proc.ActivateMain);if(i>=0)this.s.queue.unshift({kind:'effect',uid:x.uid,index:i,step:0,group:0,targets:[],previous:[],context:{copied:true}});}
     if(e.TurnEndActivateDon){this.s.donActivations??=[];this.s.donActivations.push({owner:o,turn:this.s.turn,count:e.TurnEndActivateDon});this.log(`${this.name(c)}：将在回合结束时激活 ${e.TurnEndActivateDon} 张 DON!!`);}
     if(e.DealDamage)this.s.queue.push({kind:'damage',owner:1-o});
     if(e.NoTakeLifeToTurnStart){this.s.noTakeLife??={};this.s.noTakeLife[o]=true;}
