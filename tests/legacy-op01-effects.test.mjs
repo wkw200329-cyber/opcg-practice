@@ -445,3 +445,45 @@ test('OP05-043 checks a multicolor leader, adds one of the top three to hand, th
   assert.equal(action.steps[3].effect.TopDeckToDeckTop,true);
   assert.equal(action.steps[4].effect.TopDeckToDeckBottom,true);
 });
+
+test('OP01-029 gives its counter target 2000 combat power and another 2000 only at two or fewer life',()=>{
+  const e=game(),c=give(e,'OP01-029'),leader=e.list(0,'leader')[0],action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.BuffCombatPower,2000);
+  assert.equal(e.conditions(action.steps[1].details,c),false);
+  while(e.list(0,'life').length>2)e.move(e.list(0,'life')[0],'trash');
+  assert.equal(e.conditions(action.steps[1].details,c),true);
+  assert.equal(action.steps[1].target[0].AutoCopyPreviousTargets,true);
+  assert.equal(e.matchesGroup(leader,action.steps[0],0,c,{}),true);
+  assert.equal(e.actions(c)[1].steps[0].effect.BuffPower,1000);
+});
+
+test('OP04-095 adds the fifteen-trash counter bonus and its trigger draws two then requires one discard',()=>{
+  const e=game(),c=give(e,'OP04-095'),actions=e.actions(c);
+  assert.equal(e.conditions(actions[0].steps[1].details,c),false);
+  for(let i=0;i<15;i++)e.card('ST01-003',0,'trash');
+  assert.equal(e.conditions(actions[0].steps[1].details,c),true);
+  assert.equal(actions[0].steps[1].effect.BuffCombatPower,2000);
+  assert.equal(actions[1].steps[0].effect.DrawCards,2);
+  assert.equal(actions[1].steps[1].details.FullTargetsRequired[0],0);
+});
+
+test('OP05-114 checks opposing life for both its counter bonus and its trigger KO cost ceiling',()=>{
+  const e=game(),c=give(e,'OP05-114'),enemy=e.card('EB01-015',1,'field'),actions=e.actions(c);
+  assert.equal(e.conditions(actions[0].steps[1].details,c),false);
+  while(e.list(1,'life').length>2)e.move(e.list(1,'life')[0],'trash');
+  assert.equal(e.conditions(actions[0].steps[1].details,c),true);
+  assert.equal(e.matchesGroup(enemy,actions[1].steps[0],0,c,{}),true);
+  assert.equal(actions[1].steps[0].effect.KOCard,true);
+});
+
+test('OP05-080 requires twenty trash cards, returns exactly twenty, shuffles, and gains battle power plus Double Attack',()=>{
+  const e=game(),c=give(e,'OP05-080'),action=e.actions(c)[0];
+  assert.equal(e.conditions(action.proc,c),false);
+  for(let i=0;i<20;i++)e.card('ST01-003',0,'trash');
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(action.steps[0].target[0].TargetCount,20);
+  assert.equal(action.steps[0].effect.SendToDeckTop,true);
+  assert.equal(action.steps[1].effect.ShuffleDeck,true);
+  assert.equal(action.steps[2].effect.GainDoubleAttack,true);
+  assert.equal(action.steps[2].effect.BuffCombatPower,10000);
+});
