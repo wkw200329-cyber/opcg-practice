@@ -28,7 +28,7 @@ export function runRemoval(e,t){
   if(!job.moves.some(m=>!m.canceled&&replacementMatches(e,source,a.proc,m)))continue;
   job.seen.push(key);e.s.queue.unshift(t);e.ask({type:'replacement',owner:source.owner,card:source.uid,index,job:t.id,title:`${e.name(source)}：是否发动替代效果，防止卡牌离场？`});return;
  }
- for(const m of job.moves){const c=e.s.cards[m.uid];if(m.canceled||c.zone!==m.from)continue;e.move(c,m.destination,{bottom:m.bottom,faceUp:m.faceUp});if(m.type==='KO'){e.emit('OnKO',c,{owner:c.owner});e.emit('AnyCharacterKOd',c,{owner:c.owner,removed:c.uid});if(!m.combat)e.emit('OnKOEffectOnly',c,{owner:c.owner});}}
+ for(const m of job.moves){const c=e.s.cards[m.uid];if(m.canceled||c.zone!==m.from)continue;const removal={...m,removed:c.uid,removedOwner:c.owner};e.move(c,m.destination,{bottom:m.bottom,faceUp:m.faceUp});e.emit('CharacterRemoved',c,{removal,removed:c.uid,owner:c.owner});if(m.type==='KO'){e.emit('OnKO',c,{owner:c.owner});e.emit('AnyCharacterKOd',c,{owner:c.owner,removed:c.uid,removal});if(!m.combat)e.emit('OnKOEffectOnly',c,{owner:c.owner,removal});}}
  delete e.s.removals[t.id];
 }
 export function finishReplacement(e,t){const job=e.s.removals?.[t.context?.replacement];if(!job)return;const c=e.s.cards[t.uid],a=e.rule(c).actionV3s?.[t.index];if(!a)return;for(const m of job.moves)if(replacementMatches(e,c,a.proc,m))m.canceled=true;}

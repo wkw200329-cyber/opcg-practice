@@ -14,6 +14,7 @@ export function table(e,handOwner,selected=[],attackFrom=null){
   if(p.type==='counter')buttons='<button class="primary" data-answer="finish">结束反击，结算战斗</button>';
   if(p.type==='endOrder')buttons=p.entries.map((x,i)=>`<button data-answer="${i}">${esc(e.name(s.cards[x.uid]))} · 效果 ${x.index+1}</button>`).join('');
   if(p.type==='choice')buttons=p.choices.map((x,i)=>`<button data-answer="${i}">${esc(choiceLabel(x.ButtonText))}</button>`).join('');
+  if(p.type==='declareCost')buttons=Array.from({length:11},(_,i)=>`<button data-answer="${i}">${i}</button>`).join('');
   if(p.type==='peek')buttons=`${card(s.cards[p.peek])}<button class="primary" data-answer="confirm">已查看，继续</button>`;
   if(p.candidates)buttons=`<span>已选 ${selected.length} / ${p.max}</span>${p.cancelAllowed?'<button data-answer="cancelEffect">取消此效果</button>':''}<button class="primary" data-confirmtargets ${selected.length<p.min?'disabled':''}>${selected.length?'确认选择':p.type==='block'?'不阻挡':'不选择目标'}</button>`;
   const hiddenCandidates=p.candidates?.filter(u=>!['leader','field','stage','hand'].includes(s.cards[u].zone))||[];

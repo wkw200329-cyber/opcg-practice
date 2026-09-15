@@ -2,8 +2,10 @@
 const overlap=(a=[],b=[])=>a.some(x=>b.includes(x));
 export const extraConditionNames=`AllyCostOrMore AllyCostCount AllyBaseCostOrMore AllyTotalCostOrMore CostXOrMoreExists CostXOrLessExists SelfCostXOrMoreNotExists CostZeroOrXOrMoreExists OppCostZeroOrXOrMoreExists CharacterCostXOrMore MyCostXOrMore DonXLessThanOpp EitherDonXOrMore EitherPlayerZeroLife HandDiffXOrMore CategoryInPlayRequired CategoryInPlayCount TopDeckHasCategory TopDeckHasType TopDeckCostOrMore TopDeckCostOrLess TopDeckMatchesSavedCost AllyNameInPlay AllyNameInPlayCount NameNotInAnyDeploy LeaderHasColors CombinedLifeXOrMore OppRestedCharacters OppRestedCards LessThanXAvailableDon SelfLeaderAttachedDon OppAttachedDon TrashEventsXOrLess AnyFacedownLife FacedownBotLife FaceupBotLife FieldIsFullAndUnique FieldIsOnlyCounterless NamesInYourTrash NameOwned NameIsRested PreviousTargetNowInLife PreviousTargetNowInHand PreviousTargetNowInDeck PreviousTargetNowInTrash`.split(' ');
 extraConditionNames.push(...'SelfNoCharBaseXOrMore NoBaseXOrMore OppAnyBaseXOrMore Opp2CharsBaseXOrMore OppCharBaseXOrMore SelfAnyBaseXOrMore TwoCharacterBasePowerX TwoCharacterBasePowerXOrMore CharacterBasePowerXOrMore AnyPowerXOrMore SelfCharacterCategory OverrideLeaderCategoryName'.split(' '));
+extraConditionNames.push(...'YourCharacterRemoved YourCharacterKOd YourCharacterOriginalPowerXOrMoreKOd OpponentCharacterKOd XMyDonIsReturned OppActivatesEvent YouActivateEvent OppActivatesTrigger YouActivateTrigger YouRestedCharacter YouRemovedCharacter'.split(' '));
+extraConditionNames.push(...'CharacterPowerXOrMore CharacterCategoryXPowerOrMore CharacterCategoryXCostOrMore CostXOrHigherCharacterCategory OppXMoreOrMoreCharacters BoardLessThanCostX ACOCColorReq HandSentToTrashMyEffect LifeSentToHand LifeSentToTrash LifeSentToDeck LifeSentToField YourLifeSentToHand'.split(' '));
 export function extraCondition(k,v,p,e,c,ctx){
- const o=c.owner,own=e.s.players[o],opp=e.s.players[1-o],field=e.list(o,'field'),enemy=e.list(1-o,'field'),all=[...field,...enemy],leader=e.list(o,'leader')[0],revealed=(ctx.revealed?.uids||[]).map(u=>e.s.cards[u]).filter(x=>x.zone===ctx.revealed?.from);
+ const o=c.owner,own=e.s.players[o],opp=e.s.players[1-o],field=e.list(o,'field'),enemy=e.list(1-o,'field'),all=[...field,...enemy],leader=e.list(o,'leader')[0],revealed=(ctx.revealed?.uids||[]).map(u=>e.s.cards[u]).filter(x=>x.zone===ctx.revealed?.from),removed=ctx.removed&&e.s.cards[ctx.removed];
  const named=(x,names)=>overlap([e.rule(x).characterName,...e.rule(x).extraNames||[]],Array.isArray(names)?names:[names]);
  switch(k){
  case 'SelfNoCharBaseXOrMore':return !field.some(x=>(e.def(x).power||0)>=v);
@@ -17,6 +19,29 @@ export function extraCondition(k,v,p,e,c,ctx){
  case 'AnyPowerXOrMore':return all.some(x=>e.power(x)>=v);
  case 'SelfCharacterCategory':return !v.iCount||field.filter(x=>overlap(e.rule(x).cardCategories,[v.eCategory])).length>=v.iCount;
  case 'OverrideLeaderCategoryName':return true; // Alternative to LeaderCategoryRequired, checked together in Engine.
+ case 'YourCharacterRemoved':return !!removed&&ctx.removal?.removedOwner===o&&overlap(e.rule(removed).cardCategories,v);
+ case 'YourCharacterKOd':return !!removed&&ctx.removal?.removedOwner===o&&ctx.removal.type==='KO'&&overlap(e.rule(removed).cardCategories,v);
+ case 'YourCharacterOriginalPowerXOrMoreKOd':return !!removed&&ctx.removal?.removedOwner===o&&ctx.removal.type==='KO'&&(e.def(removed).power||0)>=v;
+ case 'OpponentCharacterKOd':return !!ctx.removal&&ctx.removal.removedOwner===1-o&&ctx.removal.type==='KO';
+ case 'XMyDonIsReturned':return ctx.donReturned?.owner===o&&ctx.donReturned.count>=v;
+ case 'OppActivatesEvent':return ctx.event?.owner===1-o;
+ case 'YouActivateEvent':return ctx.event?.owner===o;
+ case 'OppActivatesTrigger':return ctx.trigger?.owner===1-o;
+ case 'YouActivateTrigger':return ctx.trigger?.owner===o;
+ case 'YouRestedCharacter':return ctx.rested?.owner===o&&ctx.rested.by===o;
+ case 'YouRemovedCharacter':return !!ctx.removal&&ctx.removal.remover===o;
+ case 'CharacterPowerXOrMore':return field.some(x=>(e.def(x).power||0)>=v);
+ case 'CharacterCategoryXPowerOrMore':return !Number.isFinite(v.iCount)||field.some(x=>overlap(e.rule(x).cardCategories,[v.eCategory])&&(e.def(x).power||0)>=v.iCount);
+ case 'CharacterCategoryXCostOrMore':return !Number.isFinite(v.iCount)||field.some(x=>overlap(e.rule(x).cardCategories,[v.eCategory])&&e.cost(x)>=v.iCount);
+ case 'CostXOrHigherCharacterCategory':return !Number.isFinite(v.iCount)||field.some(x=>overlap(e.rule(x).cardCategories,[v.eCategory])&&e.cost(x)>=v.iCount);
+ case 'OppXMoreOrMoreCharacters':return enemy.length>=v;
+ case 'BoardLessThanCostX':return field.length<v;
+ case 'ACOCColorReq':return overlap(e.rule(leader).cardColors,v);
+ case 'HandSentToTrashMyEffect':return ctx.handTrashed?.owner===o&&ctx.handTrashed.by===o;
+ case 'LifeSentToHand':case 'YourLifeSentToHand':return ctx.lifeSent?.owner===o&&ctx.lifeSent.destination==='hand';
+ case 'LifeSentToTrash':return ctx.lifeSent?.owner===o&&ctx.lifeSent.destination==='trash';
+ case 'LifeSentToDeck':return ctx.lifeSent?.owner===o&&ctx.lifeSent.destination==='deck';
+ case 'LifeSentToField':return ctx.lifeSent?.owner===o&&ctx.lifeSent.destination==='field';
 
  case 'AllyCostOrMore':return field.filter(x=>e.cost(x)>=v).length>=Math.max(1,p.AllyCostCount||0);
  case 'AllyBaseCostOrMore':return field.filter(x=>(e.def(x).cost||0)>=v).length>=Math.max(1,p.AllyCostCount||0);
@@ -37,7 +62,7 @@ export function extraCondition(k,v,p,e,c,ctx){
  case 'TopDeckHasType':return revealed.some(x=>v.includes(e.rule(x).cardType));
  case 'TopDeckCostOrMore':return revealed.some(x=>e.cost(x)>=v);
  case 'TopDeckCostOrLess':return revealed.some(x=>e.cost(x)<=v);
- case 'TopDeckMatchesSavedCost':return revealed.some(x=>e.cost(x)===ctx.savedCount);
+ case 'TopDeckMatchesSavedCost':return revealed.some(x=>e.cost(x)===(ctx.declaredCost??ctx.savedCount));
  case 'AllyNameInPlay':return field.filter(x=>named(x,v)).length>=Math.max(1,p.AllyNameInPlayCount||0);
  case 'NameNotInAnyDeploy':return !all.some(x=>named(x,v));
  case 'LeaderHasColors':return overlap(e.rule(leader).cardColors,v);

@@ -42,6 +42,7 @@ export class Engine {
     if(['field','leader','stage'].includes(from)&&from!==zone){c.incarnation=(c.incarnation||0)+1;for(const d of this.attached(c)){delete d.attached;d.rested=true}c.mods=[];c.used={};}
     const idx=p[from].indexOf(c.uid);assert(idx>=0,'卡牌区域状态不一致');p[from].splice(idx,1);bottom?p[zone].push(c.uid):p[zone].unshift(c.uid);c.zone=zone;c.rested=rested;c.faceUp=faceUp;
     if(zone==='field'||zone==='stage')c.joined=this.s.turn;
+    if(from==='life'&&['hand','trash','deck','field'].includes(zone)&&!['setup','mulligan'].includes(this.s.phase))this.emit('LifeSent',c,{lifeSent:{owner:c.owner,destination:zone,uid:c.uid}});
     if(from==='deck'&&zone!=='deck'&&this.s.phase!=='mulligan'&&!p.deck.length&&this.s.winner===null){this.win(this.flags(this.list(c.owner,'leader')[0]).WinsByDeckout?c.owner:1-c.owner,'牌库已空');throw new GameFinished();}
   }
   draw(owner,n=1,events=true){for(let k=0;k<n;k++){const c=this.list(owner,'deck')[0];if(!c){this.win(1-owner,'对方牌库已空');break}this.move(c,'hand');if(events)this.emit('CardDrawn',c,{owner});}if(n)this.log(`${this.label(owner)} 抽 ${n} 张牌`);}
@@ -86,6 +87,7 @@ export class Engine {
     if(p.type==='replacement'){assert(['yes','no'].includes(cmd.value),'请选择发动或放弃替代效果');if(cmd.value==='yes')this.beginAction(this.s.cards[p.card],p.index,{replacement:p.job},true);return}
     if(p.type==='targets'){const t=p.task;for(let i=0;i<picks.length;i++)assert(this.targetAllowed(p,picks[i],picks.slice(0,i)),'不能重复选择同名卡，或所选卡牌不符合效果条件');t.targets[p.group]=picks;t.group=p.group+1;this.s.queue.unshift(t);return}
     if(p.type==='choice'){const i=Number(cmd.value);assert(Number.isInteger(i)&&i>=0&&i<p.choices.length,'效果选项无效');p.task.step=p.choices[i].JumpToStep??0;p.task.targets=[];p.task.group=0;delete p.task.prepared;delete p.task.confirmed;delete p.task.order;this.s.queue.unshift(p.task);return}
+    if(p.type==='declareCost'){const n=Number(cmd.value);assert(Number.isInteger(n)&&n>=0&&n<=10,'费用应为 0–10 的整数');p.task.declaredCost=n;this.s.queue.unshift(p.task);return}
     if(p.type==='confirmEffect'){assert(['yes','no'].includes(cmd.value),'请选择确认或取消');assert(cmd.value!=='no'||!p.noCancel,'这个步骤不能取消');if(cmd.value==='yes'){p.task.confirmed=true;this.s.queue.unshift(p.task)}return}
     if(p.type==='order'){p.task.order=picks;this.s.queue.unshift(p.task);return}
     if(p.type==='peek'){assert(cmd.value==='confirm','请确认查看');p.task.peekConfirmed=true;this.s.queue.unshift(p.task);return}
@@ -134,13 +136,14 @@ export class Engine {
     const a=this.actions(c)[index];assert(a,'卡牌效果不存在');assert(this.conditions(a.proc,c,context),'未满足发动条件');assert(!a.proc.OncePerTurn||c.used[index]!==this.s.turn,'该效果本回合已使用');
     const costStep=a.steps?.[0];if(costStep?.effect?.DonTap)assert(this.readyDon(c.owner).length>=costStep.effect.DonTap,'可用 DON!! 不足');
     if(costStep?.effect?.DonMinus)assert(this.don(c.owner).length>=costStep.effect.DonMinus,'DON!! 不足以支付返还费用');
-    this.log(`${this.name(c)} 发动效果`);this.s.queue.unshift({kind:'effect',uid:c.uid,index,step:0,group:0,targets:[],previous:[],context});
+    this.log(`${this.name(c)} 发动效果`);if(this.def(c).type==='事件')this.emit('ActivatesEvent',c,{event:{owner:c.owner,uid:c.uid}});if(context.trigger)this.emit('ActivatesTrigger',c,{trigger:{owner:c.owner,uid:c.uid}});this.s.queue.unshift({kind:'effect',uid:c.uid,index,step:0,group:0,targets:[],previous:[],context});
   }
   emit(event,subject,context={}){
     const owner=context.owner??subject?.owner;
     const direct=['OnPlay','OnAttack','OnAttackLeader','OnBlock','OnKO','OnKOEffectOnly','OnRest','AfterBattleCharacter'];
+    const conditionEvents={CharacterRemoved:['YourCharacterRemoved','YourCharacterKOd','YourCharacterOriginalPowerXOrMoreKOd','OpponentCharacterKOd','YouRemovedCharacter'],MyDonIsReturned:['XMyDonIsReturned'],ActivatesEvent:['OppActivatesEvent','YouActivateEvent'],ActivatesTrigger:['OppActivatesTrigger','YouActivateTrigger'],YouRestedCharacter:['YouRestedCharacter'],HandSentToTrash:['HandSentToTrashMyEffect'],LifeSent:['LifeSentToHand','LifeSentToTrash','LifeSentToDeck','LifeSentToField','YourLifeSentToHand']}[event]||[];
     const sources=direct.includes(event)?(subject?[subject]:[]):[...this.board(owner??0),...this.board(1-(owner??0))];
-    for(const c of sources)this.actions(c).forEach((a,index)=>{if(a.proc[event]&&(direct.includes(event)||event==='AnyCharacterKOd'||c.owner===owner)&&this.conditions(a.proc,c,context)&&(!a.proc.OncePerTurn||c.used[index]!==this.s.turn))this.s.events.push({kind:'offer',uid:c.uid,index,context});});
+    for(const c of sources)this.actions(c).forEach((a,index)=>{if((a.proc[event]||conditionEvents.some(k=>a.proc[k]))&&(direct.includes(event)||event==='AnyCharacterKOd'||conditionEvents.length||c.owner===owner)&&this.conditions(a.proc,c,context)&&(!a.proc.OncePerTurn||c.used[index]!==this.s.turn))this.s.events.push({kind:'offer',uid:c.uid,index,context});});
   }
   pump(){let n=0;while(!this.s.prompt&&(this.s.queue.length||this.s.events.length||this.s.interruptions?.length)&&this.s.winner===null){assert(++n<1000,'效果循环超过安全上限');if(this.s.interruptions?.length){this.s.queue.unshift(...this.s.interruptions);this.s.interruptions=[];}else if(this.s.events.length&&!['effect','effectDeployment'].includes(this.s.queue[0]?.kind)){this.s.queue.unshift(...this.s.events);this.s.events=[];}const t=this.s.queue.shift();this.task(t)}}
   resolveEnding(entry){this.s.endings=this.s.endings.filter(x=>x.id!==entry.id);this.s.queue.unshift({kind:'effect',uid:entry.uid,index:entry.index,action:entry.action,step:0,group:0,targets:[],previous:[],context:{delayed:true,incarnation:entry.incarnation}},{kind:'delayedEndTurn',owner:entry.owner});this.log(`${this.label(entry.owner)} 结算 ${this.name(this.s.cards[entry.uid])} 的回合结束效果`);}
@@ -192,7 +195,7 @@ export class Engine {
       if(checks[k]&&!checks[k]())return false;
       if(k==='BattlingStrikeType'){const b=this.s.battle;if(!b||![b.attacker,b.target].includes(c.uid)||!v.includes(this.rule(this.s.cards[b.attacker===c.uid?b.target:b.attacker]).strikeType))return false;}
       if(extraConditionNames.includes(k)&&!extraCondition(k,v,p,this,c,context))return false;
-      if(v&&typeof v==='object'&&!Array.isArray(v)&&v.iCount){const list=this.list(o,'field'),matches=list.filter(x=>overlaps(this.rule(x).cardCategories,[v.eCategory])&&(k.includes('Rested')?x.rested:true));if(k.includes('Category')&&matches.length<v.iCount)return false;}
+      if(v&&typeof v==='object'&&!Array.isArray(v)&&v.iCount&&!['CharacterCategoryXPowerOrMore','CharacterCategoryXCostOrMore','CostXOrHigherCharacterCategory'].includes(k)){const list=this.list(o,'field'),matches=list.filter(x=>overlaps(this.rule(x).cardCategories,[v.eCategory])&&(k.includes('Rested')?x.rested:true));if(k.includes('Category')&&matches.length<v.iCount)return false;}
     }return true;
   }
   targetAllowed(p,uid,selected=[]){if(p.type!=='targets')return p.candidates?.includes(uid);const task=p.task,source=this.s.cards[task.uid],step=(task.action||this.actions(source)[task.index]).steps[task.step];return this.matchesGroup(this.s.cards[uid],step,p.group,source,{...task,selected});}
@@ -232,9 +235,10 @@ export class Engine {
   effectStep(t){
     const c=this.s.cards[t.uid],a=t.action||this.actions(c)[t.index],step=a?.steps[t.step];if(!step){if(t.searched)this.shuffle(this.s.players[c.owner].deck);finishReplacement(this,t);return;}
     if(step.details?.SearchingDeck)t.searched=true;
-    if(!this.conditions(step.details||{},c,{...t.context,previous:t.previous,revealed:t.revealed})){if(!step.details?.Required){t.step++;t.targets=[];t.group=0;this.s.queue.unshift(t)}return}
+    if(!this.conditions(step.details||{},c,{...t.context,previous:t.previous,revealed:t.revealed,declaredCost:t.declaredCost})||step.details?.CanUseOnPlays&&!this.actions(c).some(a=>a.proc.OnPlay&&this.conditions(a.proc,c,t.context))){if(!step.details?.Required){t.step++;t.targets=[];t.group=0;this.s.queue.unshift(t)}return}
     const e={...step.effect};if(e.DonMinusToOppCount)e.DonMinus=Math.max(0,this.don(c.owner).length-this.don(1-c.owner).length);const browseZone=!!(e.StartTopDeckFromTrash||e.StartTopDeckFromOppTrash||e.StartTopDeckFromHand||e.StartTopDeckFromDeck||e.StartTopDeckFromLifeAll||e.StartTopDeckFromOppLifeAll);
     if((e.PeekSelfLife||e.PeekOppLife)&&!t.peekConfirmed){const peek=this.list(e.PeekOppLife?1-c.owner:c.owner,'life')[0];if(peek){this.ask({type:'peek',owner:c.owner,peek:peek.uid,task:t,title:'查看最上方的生命牌（查看不会改变正反面状态）'});return}}
+    if(e.DeclareCost&&t.declaredCost===undefined){this.ask({type:'declareCost',owner:c.owner,task:t,title:'宣言一个费用（0–10）'});return}
     if(e.DonTap&&this.readyDon(c.owner).length<e.DonTap||e.RestSelf&&this.flags(c).CantRest){if(!step.details?.Required){t.step++;t.targets=[];t.group=0;delete t.prepared;this.s.queue.unshift(t)}return}
     if(step.details?.ConfirmAction&&!t.confirmed){this.ask({type:'confirmEffect',owner:c.owner,task:t,noCancel:!!step.details.NoCancel,title:`是否执行 ${this.name(c)} 的这个效果步骤？`});return}
     if(!t.prepared){
@@ -266,10 +270,10 @@ export class Engine {
     if(e.SaveTargetCount)t.savedTargetCount=targets.length;
     if(e.SaveHandSize)t.savedHandSize=this.list(o,'hand').length;
     if(e.DrawSavedCount)this.draw(o,t.savedTargetCount??t.savedHandSize??0);
-    if(e.RestSelf){assert(!c.rested,'该卡已横置');c.rested=true;this.emit('OnRest',c,{owner:c.owner})}
+    if(e.RestSelf){assert(!c.rested,'该卡已横置');c.rested=true;this.emit('OnRest',c,{owner:c.owner});if(this.def(c).type==='角色')this.emit('YouRestedCharacter',c,{rested:{owner:c.owner,by:c.owner,uid:c.uid}})}
     if(e.TrashSelf)this.move(c,'trash');
-    if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o});}
-    if(e.OptionalReturnDon){const ds=targets.filter(x=>x.zone==='don'&&x.owner===o);for(const d of ds){delete d.attached;this.move(d,'donReserve')}if(ds.length)this.emit('MyDonIsReturned',c,{owner:o});}
+    if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o,donReturned:{owner:o,count:e.DonMinus}});}
+    if(e.OptionalReturnDon){const ds=targets.filter(x=>x.zone==='don'&&x.owner===o);for(const d of ds){delete d.attached;this.move(d,'donReserve')}if(ds.length)this.emit('MyDonIsReturned',c,{owner:o,donReturned:{owner:o,count:ds.length}});}
     if(e.DrawCards)this.draw(o,e.DrawCards);
     if(e.AllCharsEffectImmune)for(const x of this.list(o,'field'))this.mod(x,'flag','ImmuneToOpponentNoncombat','oppEnd');
     if(e.ActivateMainOfCard)for(const x of targets){const i=this.actions(x).findIndex(a=>a.proc.ActivateMain);if(i>=0)this.s.queue.unshift({kind:'effect',uid:x.uid,index:i,step:0,group:0,targets:[],previous:[],context:{copied:true}});}
@@ -278,6 +282,7 @@ export class Engine {
     if(e.NoTakeLifeToTurnStart){this.s.noTakeLife??={};this.s.noTakeLife[o]=true;}
     if(e.CantActivateDonToTurnEnd){this.s.noActivateDon??={};this.s.noActivateDon[o]=true;}if(e.CantPlayAnyCharactersToField){this.s.noPlayCharacters??={};this.s.noPlayCharacters[o]=true;}
     if(e.CantPlayOriginalCostOrMore){this.s.noPlayOriginalCost??={};this.s.noPlayOriginalCost[o]=Math.min(this.s.noPlayOriginalCost[o]??Infinity,e.CantPlayOriginalCostOrMore);}
+    if(e.RevealOppHand){this.s.revealedHands??={};this.s.revealedHands[1-o]=true;this.log(`${this.label(1-o)} 的手牌已公开`);}if(e.HideOppHand&&this.s.revealedHands){delete this.s.revealedHands[1-o];this.log(`${this.label(1-o)} 的手牌不再公开`);}
     if(e.OppTrashRandom){const xs=this.shuffle(this.list(1-o,'hand').slice()).slice(0,e.OppTrashRandom);for(const x of xs)this.move(x,'trash');this.log(`${this.label(1-o)} 随机丢弃 ${xs.length} 张手牌`);}
     if(e.GainActiveDon||e.GainRestedDon){const n=e.GainActiveDon||e.GainRestedDon;for(const d of this.list(o,'donReserve').slice(0,n))this.move(d,'don',{rested:!!e.GainRestedDon});}
     if(e.MillDeck)for(const x of this.list(o,'deck').slice(0,e.MillDeck))this.move(x,'trash');
@@ -306,11 +311,11 @@ export class Engine {
       if(e.SetBasePowerToOppEnd)this.mod(x,'basePower',e.SetBasePowerToOppEnd,'oppEnd');
       if(e.Silence)this.mod(x,'flag','Silence');if(e.SilenceToOwnersEnd)this.mod(x,'flag','Silence','ownerEnd');if(e.GainBlockerToOppEnd)this.mod(x,'flag','Blocker','oppEnd');
       for(const[k,flag]of Object.entries({GainRush:'Rush',GainRushCharacters:'RushCharacters',GainBlocker:'Blocker',GainDoubleAttack:'DoubleAttack',GainBanish:'Banish',GainUnblockable:'Unblockable',GainCanAttackActive:'CanAttackActive',CantAttack:'CantAttack',CantRest:'CantRest',GainImmune:'ImmuneToNoncombat',LoseBlocker:'LoseBlocker'}))if(e[k])this.mod(x,'flag',flag);
-      if(e.GainCombatImmuneToStart)this.mod(x,'flag','ImmuneToBattle','ownerStart');if(e.Activate&&!(x.zone==='don'&&this.s.noActivateDon?.[x.owner]&&this.def(c).type==='角色'))x.rested=false;if(e.Rest&&!x.rested&&!this.flags(x).ImmuneToRest){x.rested=true;this.emit('OnRest',x,{owner:x.owner})}if(e.Freeze)x.freeze=true;if(e.FlipLifeDown)x.faceUp=false;
+      if(e.GainCombatImmuneToStart)this.mod(x,'flag','ImmuneToBattle','ownerStart');if(e.EffectImmune)this.mod(x,'flag','ImmuneToNoncombat','ownerEnd');if(e.FieldGainsTenacity)this.mod(x,'flag','ImmuneToBattle','ownerEnd');if(e.GainConfusion)this.mod(x,'flag','CantAttack','ownerEnd');if(e.Activate&&!(x.zone==='don'&&this.s.noActivateDon?.[x.owner]&&this.def(c).type==='角色'))x.rested=false;if(e.Rest&&!x.rested&&!this.flags(x).ImmuneToRest){x.rested=true;this.emit('OnRest',x,{owner:x.owner});if(this.def(x).type==='角色')this.emit('YouRestedCharacter',x,{rested:{owner:x.owner,by:c.owner,uid:x.uid}})}if(e.Freeze)x.freeze=true;if(e.FlipLifeDown)x.faceUp=false;
       if(e.BecomeDefenderCharacter&&this.s.battle&&['leader','field'].includes(x.zone)){this.s.battle.target=x.uid;this.s.battle.blocked=true;this.log(`${this.name(x)} 成为攻击目标`);}
       if(e.AttachRestedDon||e.AttachActiveDon){const ds=e.AttachRestedDon?this.restDon(o):this.readyDon(o);if(ds[0])ds[0].attached=x.uid;}
       const group=removalGroup,options={source:c,group};
-      if(e.KOCard)this.remove(x,'trash',false,c,group);if(e.TrashCard)enqueueRemoval(this,x,'trash',{...options,type:'Trash'});if(e.SendToHand)enqueueRemoval(this,x,'hand',{...options,type:'Bounce'});if(e.SendToDeckBottom)enqueueRemoval(this,x,'deck',{...options,type:'DeckBottom',bottom:true});if(e.SendToDeckTop)enqueueRemoval(this,x,'deck',{...options,type:'DeckTop'});if(e.SendToTopLife)enqueueRemoval(this,x,'life',{...options,type:'TopLife',faceUp:!!e.ForcedFaceUp});if(e.SendToBottomLife)enqueueRemoval(this,x,'life',{...options,type:'BottomLife',bottom:true,faceUp:!!e.ForcedFaceUp});if(e.DeployCharacter)this.deploy(x,!!e.DeploysRested);
+      if(e.KOCard)this.remove(x,'trash',false,c,group);if(e.TrashCard){const wasHand=x.zone==='hand';enqueueRemoval(this,x,'trash',{...options,type:'Trash'});if(wasHand)this.emit('HandSentToTrash',c,{handTrashed:{owner:x.owner,by:c.owner,uid:x.uid}});}if(e.SendToHand)enqueueRemoval(this,x,'hand',{...options,type:'Bounce'});if(e.SendToDeckBottom)enqueueRemoval(this,x,'deck',{...options,type:'DeckBottom',bottom:true});if(e.SendToDeckTop)enqueueRemoval(this,x,'deck',{...options,type:'DeckTop'});if(e.SendToTopLife)enqueueRemoval(this,x,'life',{...options,type:'TopLife',faceUp:!!e.ForcedFaceUp});if(e.SendToBottomLife)enqueueRemoval(this,x,'life',{...options,type:'BottomLife',bottom:true,faceUp:!!e.ForcedFaceUp});if(e.DeployCharacter)this.deploy(x,!!e.DeploysRested);
     }
     if(e.TopDeckToDeckBottom||e.TopDeckToDeckTop||e.TrashTopDeck){let xs=(t.order||t.revealed?.uids||[]).map(u=>this.s.cards[u]).filter(x=>x.zone===t.revealed?.from);if(e.TopDeckToDeckTop)xs.reverse();for(const x of xs)this.move(x,e.TrashTopDeck?'trash':'deck',{bottom:!!e.TopDeckToDeckBottom});}
     if(e.ShuffleDeck)this.shuffle(this.s.players[o].deck);if(e.WinTheGame)this.win(o,'卡牌效果');if(e.LoseTheGame)this.win(1-o,'卡牌效果');
