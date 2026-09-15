@@ -529,3 +529,31 @@ test('OP05-101 gains 1000 at two-or-fewer life and searches top five for Holly b
   assert.equal(e.matchesGroup(holly,actions[1].steps[3],0,c,{}),true);
   assert.equal(actions[1].steps[3].effect.DeployCharacter,true);
 });
+
+test('OP03-018 requires an Event discard before its two power-capped KOs, while its trigger KOs up to 5000',()=>{
+  const e=game(),c=give(e,'OP03-018'),event=e.card('ST01-016',0,'hand'),five=e.card('ST02-014',1,'field'),four=e.card('EB01-017',1,'field'),actions=e.actions(c);
+  assert.equal(e.matchesGroup(event,actions[0].steps[0],0,c,{}),true);
+  assert.equal(actions[0].steps[0].details.FullTargetsRequired[0],0);
+  assert.equal(e.matchesGroup(five,actions[0].steps[1],0,c,{}),true);
+  assert.equal(e.matchesGroup(four,actions[0].steps[2],0,c,{}),true);
+  assert.equal(actions[0].steps[2].target[0].PowerXOrLess,4000);
+  assert.equal(actions[1].steps[0].target[0].PowerXOrLess,5000);
+});
+
+test('OP04-021 pays two DON only on an opponent attack and then rests one opposing DON',()=>{
+  const e=game(),c=give(e,'OP04-021'),enemyDon=e.card('DON',1,'don'),action=e.actions(c)[0];
+  assert.equal(action.proc.OnOpponentAttack,true);
+  assert.equal(action.steps[0].effect.DonTap,2);
+  assert.equal(e.matchesGroup(enemyDon,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.Rest,true);
+});
+
+test('OP05-002 discards a Revolutionary Army hand card to give 3000 to up to three Revolutionary Army or Trigger characters',()=>{
+  const e=game(),c=give(e,'OP05-002'),cost=e.card('OP05-006',0,'hand'),revolutionary=e.card('OP05-006',0,'field'),trigger=e.card('EB01-035',0,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(cost,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].details.FullTargetsRequired[0],0);
+  assert.equal(e.matchesGroup(revolutionary,action.steps[1],0,c,{}),true);
+  assert.equal(e.matchesGroup(trigger,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].target[0].TargetCount,3);
+  assert.equal(action.steps[1].effect.BuffPower,3000);
+});
