@@ -47,3 +47,21 @@ test('OP01-072 gains 1000 power for every card in its controller hand during tha
   e.s.active=1;
   assert.equal(e.power(c),e.def(c).power);
 });
+
+test('OP01-024 attaches up to two rested DON and gains Strike immunity only with two attached DON',()=>{
+  const e=game(),c=give(e,'OP01-024');
+  e.card('DON',0,'don').rested=true;
+  e.card('DON',0,'don').rested=true;
+  e.applyEffects({AttachRestedDon:2},c,[c],{});
+  assert.equal(e.attached(c).length,2);
+  assert.deepEqual(e.flags(c).ImmuneToStrikes,['Strike']);
+  delete e.attached(c)[0].attached;
+  assert.equal(e.flags(c).ImmuneToStrikes,undefined);
+});
+
+test('OP01-112 returns one DON and lets its character attack active targets for the turn',()=>{
+  const e=game(),c=give(e,'OP01-112');
+  const action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.DonMinus,1);
+  assert.equal(action.steps[1].effect.GainCanAttackActive,true);
+});
