@@ -16,7 +16,7 @@ export function replacementMatches(e,source,p,move){
 }
 export function enqueueRemoval(e,c,destination,{source,combat=false,bottom=false,faceUp=false,type,group}={}){
  if(c.zone!=='field'){e.move(c,destination,{bottom,faceUp});return}
- const f=e.flags(c);if(!combat&&f.ImmuneToRemoval||type==='KO'&&(combat?f.ImmuneToBattle:f.ImmuneToNoncombat||f.ImmuneToOpponentNoncombat&&source?.owner!==c.owner))return;
+ const f=e.flags(c);if(!combat&&(f.ImmuneToRemoval||f.ImmuneToOpponentNoncombat&&source?.owner!==c.owner)||type==='KO'&&(combat?f.ImmuneToBattle:f.ImmuneToNoncombat||f.ImmuneToOpponentNoncombat&&source?.owner!==c.owner))return;
  e.s.removals??={};e.s.interruptions??=[];const key=group||`removal-${++e.serial}`;
  if(!e.s.removals[key]){e.s.removals[key]={moves:[],seen:[]};e.s.interruptions.push({kind:'removal',id:key});}
  e.s.removals[key].moves.push({uid:c.uid,from:c.zone,destination,remover:source?.owner??(combat?1-c.owner:c.owner),combat,bottom,faceUp,type:type||'KO',canceled:false});

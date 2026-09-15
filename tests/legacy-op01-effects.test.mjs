@@ -259,6 +259,89 @@ test('OP04-115 takes life then gives Double Attack only to a Wano character',()=
   assert.equal(action.steps[1].effect.GainDoubleAttack,true);
 });
 
+test('OP01-002 Law requires a different-color character after returning one friendly character',()=>{
+  const e=game(),law=give(e,'OP01-002'),red=e.card('ST01-003',0,'field'),sameColor=e.card('ST01-004',0,'hand'),different=e.card('ST02-003',0,'hand');
+  const action=e.actions(law)[0],deployStep=action.steps[2];
+  assert.equal(e.matchesGroup(sameColor,deployStep,0,law,{previous:[red.uid]}),false);
+  assert.equal(e.matchesGroup(different,deployStep,0,law,{previous:[red.uid]}),true);
+  assert.equal(action.steps[1].details.NoCancel,true);
+});
+
+test('OP01-105 Bao Huang records only its two selected opposing hand cards as revealed',()=>{
+  const e=game(),bao=give(e,'OP01-105'),first=e.list(1,'hand')[0],second=e.list(1,'hand')[1],other=e.list(1,'hand')[2];
+  e.applyEffects({RevealSelectedHand:true},bao,[first,second],{});
+  assert.equal(e.s.revealedCards[first.uid],true);
+  assert.equal(e.s.revealedCards[second.uid],true);
+  assert.equal(e.s.revealedCards[other.uid],undefined);
+  assert.equal(e.s.revealedHands,undefined);
+});
+
+test('OP04-047 Ice Oni can bottom-deck only the character it battled',()=>{
+  const e=game(),oni=give(e,'OP04-047'),battled=e.card('ST02-003',1,'field'),other=e.card('ST02-005',1,'field'),step=e.actions(oni)[0].steps[0];
+  assert.equal(e.matchesGroup(battled,step,0,oni,{context:{battleTarget:battled.uid}}),true);
+  assert.equal(e.matchesGroup(other,step,0,oni,{context:{battleTarget:battled.uid}}),false);
+});
+
+test('OP04-069 Bon Clay changes to the attacking card printed power for the turn',()=>{
+  const e=game(),bon=give(e,'OP04-069'),attacker=e.card('ST02-003',1,'field');
+  e.applyEffects({MatchAttackerBasePowerUntilTurnEnd:true},bon,[],{context:{attacker:attacker.uid}});
+  assert.equal(e.basePower(bon),e.def(attacker).power);
+});
+
+test('OP05-119 Luffy gives its controller the immediately following extra turn',()=>{
+  const e=game(),luffy=give(e,'OP05-119');
+  e.s.active=0;
+  e.applyEffects({ExtraTurn:true},luffy,[],{});
+  e.task({kind:'finishTurn'});
+  assert.equal(e.s.active,0);
+  assert.equal(e.s.extraTurnOwner,undefined);
+});
+
+test('OP15-022 Brook postpones deck-out until its controller turn ends',()=>{
+  const e=game(),brook=give(e,'OP15-022');
+  for(const c of e.list(0,'deck').slice())e.move(c,'trash');
+  e.s.active=0;
+  e.draw(0,1);
+  assert.equal(e.s.winner,null);
+  assert.equal(e.s.deckOutPending[0],true);
+  e.task({kind:'finishTurn'});
+  assert.equal(e.s.winner,1);
+  assert.match(e.s.log.at(-1).text,/回合结束时败北/);
+});
+
+test('OP04-024 Sugar rests only the character just deployed by the opponent, then rests itself',()=>{
+  const e=game(),sugar=give(e,'OP04-024'),newly=e.card('ST02-003',1,'field'),older=e.card('ST02-005',1,'field'),action=e.actions(sugar)[1],step=action.steps[0];
+  assert.equal(action.proc.OpponentDeployed,true);
+  assert.equal(e.matchesGroup(newly,step,0,sugar,{context:{deployed:{uid:newly.uid}}}),true);
+  assert.equal(e.matchesGroup(older,step,0,sugar,{context:{deployed:{uid:newly.uid}}}),false);
+  assert.equal(action.steps[1].effect.Rest,true);
+});
+
+test('OP04-040 Queen offers heal only when a friendly cost-eight-or-more character exists',()=>{
+  const e=game(),queen=give(e,'OP04-040'),action=e.actions(queen)[0],choices=action.steps[0].effect.Choices;
+  assert.equal(choices.length,2);
+  assert.equal(e.conditions(choices[1].When,queen),false);
+  e.card('EB02-004',0,'field');
+  assert.equal(e.conditions(choices[1].When,queen),true);
+});
+
+test('OP04-119 Rosinante protects only another active printed-cost-five friendly character from opposing effects',()=>{
+  const e=game(),rosinante=give(e,'OP04-119'),protectedCard=e.card('EB01-002',0,'field'),enemy=e.card('ST02-005',1,'field');
+  rosinante.rested=true;e.s.active=1;
+  assert.equal(e.flags(protectedCard).ImmuneToOpponentNoncombat,true);
+  e.remove(protectedCard,'trash',false,enemy);e.pump();
+  assert.equal(protectedCard.zone,'field');
+  e.remove(protectedCard,'trash',false,rosinante);e.pump();
+  assert.equal(protectedCard.zone,'trash');
+});
+
+test('OP02-027 Dog Storm prevents an opposing noncombat bounce while all own DON are rested',()=>{
+  const e=game(),dog=give(e,'OP02-027'),enemy=e.card('ST02-003',1,'field');
+  for(const d of e.don(0))d.rested=true;
+  e.remove(dog,'hand',false,enemy);e.pump();
+  assert.equal(dog.zone,'field');
+});
+
 test('OP05-004 deploys only a different Revolutionary Army character with 5000 or less power after reaching 7000',()=>{
   const e=game(),c=give(e,'OP05-004'),candidate=e.card('OP05-006',0,'hand'),action=e.actions(c)[0];
   e.mod(c,'power',e.def(c).power>=7000?0:7000-e.def(c).power);
