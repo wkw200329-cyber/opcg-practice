@@ -7,6 +7,43 @@ const cards=read('cards'),rules=read('rules'),decks=read('decks');
 function game(){const e=new Engine(cards,rules,{seed:42});e.start(['ST01','ST02'].map(n=>decks.find(d=>d.name.startsWith(n))));e.dispatch({type:'choose',value:'keep'});e.dispatch({type:'choose',value:'keep'});return e;}
 function don(e,n=10){for(const c of e.list(0,'donReserve').slice(0,n-e.don(0).length))e.move(c,'don');}
 
+test('Sanji grants rush only to eligible characters without on-play abilities',()=>{
+ const e=game(),leader=e.list(0,'leader')[0];leader.id='PRB01-001';e.s.players[0].turns=2;
+ const vanilla=e.card('ST01-003',0,'field'),blocker=e.card('ST01-006',0,'field'),onPlay=e.card('ST01-011',0,'field'),enemy=e.card('ST01-003',1,'field');
+ vanilla.joined=e.s.turn;e.dispatch({type:'activate',uid:leader.uid,index:0});
+ assert.ok(e.s.prompt.candidates.includes(vanilla.uid));assert.ok(e.s.prompt.candidates.includes(blocker.uid));assert.ok(!e.s.prompt.candidates.includes(onPlay.uid));assert.ok(!e.s.prompt.candidates.includes(enemy.uid));
+ e.dispatch({type:'choose',uids:[vanilla.uid]});assert.equal(e.canAttack(vanilla,e.list(1,'leader')[0]),true);
+ e.task({kind:'finishTurn'});assert.equal(e.flags(vanilla).Rush,undefined);
+});
+
+test('Vivi rush selection excludes conditional attack abilities but accepts other abilities',()=>{
+ const e=game(),leader=e.list(0,'leader')[0];leader.id='EB03-001';
+ const eligible=e.card('ST01-011',0,'field'),attacker=e.card('ST01-003',0,'field');
+ e.rules={...e.rules,[attacker.id]:{actionV3s:[{proc:{OnAttackLeader:true,DonX:10},steps:[{effect:{DrawCards:1}}]}]}};
+ e.dispatch({type:'activate',uid:leader.uid,index:1});assert.equal(leader.rested,true);
+ assert.ok(e.s.prompt.candidates.includes(eligible.uid));assert.ok(!e.s.prompt.candidates.includes(attacker.uid));
+ e.dispatch({type:'choose',uids:[eligible.uid]});assert.equal(e.flags(eligible).Rush,true);
+});
+
+test('printed zero-power targets distinguish buffs from reducing current power to zero',()=>{
+ const e=game(),source=e.card('OP14-064',0,'field'),zero=e.card('EB01-013',1,'field'),reduced=e.card('ST01-003',1,'field');
+ e.mod(zero,'power',5000);e.mod(reduced,'power',-10000);
+ const filter={DeployedCharacter:true,EnemyOnly:true,BasePowerZero:true};
+ assert.equal(e.matches(zero,filter,source,{}),true);assert.equal(e.matches(reduced,filter,source,{}),false);
+ e.remove(source,'trash',false,e.list(1,'leader')[0]);e.pump();assert.equal(e.s.prompt.type,'choice');
+ e.dispatch({type:'choose',value:'0'});assert.ok(e.s.prompt.candidates.includes(zero.uid));assert.ok(!e.s.prompt.candidates.includes(reduced.uid));
+ e.dispatch({type:'choose',uids:[zero.uid]});assert.equal(zero.zone,'trash');assert.equal(reduced.zone,'field');
+});
+
+test('cost-equals-attached-DON KO uses current cost, rest state and actual attachment count',()=>{
+ const e=game();don(e);const source=e.card('OP15-031',0,'hand'),target=e.card('ST01-009',1,'field'),active=e.card('ST01-003',1,'field');
+ target.rested=true;e.mod(target,'cost',-1);
+ const d=e.list(1,'donReserve')[0];e.move(d,'don');d.attached=target.uid;
+ const other=e.list(1,'donReserve')[0];e.move(other,'don');other.attached=active.uid;
+ e.dispatch({type:'play',uid:source.uid});assert.ok(e.s.prompt.candidates.includes(target.uid));assert.ok(!e.s.prompt.candidates.includes(active.uid));
+ e.dispatch({type:'choose',uids:[target.uid]});assert.equal(target.zone,'trash');assert.equal(d.attached,undefined);assert.equal(d.rested,true);
+});
+
 test('character lock blocks normal and effect deployment without payment or field replacement',()=>{
  const e=game();don(e);const leader=e.list(0,'leader')[0],card=e.card('ST01-003',0,'hand');
  e.applyEffects({CantPlayAnyCharactersToField:true},leader,[],{});

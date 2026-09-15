@@ -59,3 +59,4 @@ implemented.target.add('TargetCountHandOverflow');
 ['PassiveBasePowerMatchLeader','MatchLeaderToBasePowerUntilTurnEnd'].forEach(k=>implemented.effect.add(k));
 
 implemented.effect.add('CantPlayOriginalCostOrMore');
+['HasNoOnPlay','HasNoOnAttack','BasePowerZero','CostEqualGivenDon'].forEach(k=>implemented.target.add(k));

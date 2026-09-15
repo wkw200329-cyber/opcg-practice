@@ -212,6 +212,8 @@ export class Engine {
     if(t.OnlyTypes&&!t.OnlyTypes.includes(r.cardType)||t.OnlyColors&&!overlaps(r.cardColors,t.OnlyColors)||t.OnlyCategories&&!overlaps(r.cardCategories,t.OnlyCategories)||t.OnlyNames&&!t.OnlyNames.includes(r.characterName)||t.NotNames?.includes(r.characterName)||t.OnlyStrikeTypes&&!t.OnlyStrikeTypes.includes(r.strikeType))return false;
     if(t.CostOrLess&&this.cost(c)>t.CostOrLess||t.CostOrMore&&this.cost(c)<t.CostOrMore||t.OriginalCostOrLess&&(d.cost||0)>t.OriginalCostOrLess||t.OriginalCostOrMore&&(d.cost||0)<t.OriginalCostOrMore||t.CostZero&&this.cost(c)!==0)return false;
     if(t.PowerXOrLess&&this.power(c)>t.PowerXOrLess||t.PowerXOrMore&&this.power(c)<t.PowerXOrMore||t.OriginalPowerXOrLess&&(d.power||0)>t.OriginalPowerXOrLess||t.OriginalPowerXOrMore&&(d.power||0)<t.OriginalPowerXOrMore||t.PowerZero&&this.power(c)!==0)return false;
+    if(t.BasePowerZero&&(d.power||0)!==0||t.CostEqualGivenDon&&this.cost(c)!==this.attached(c).length)return false;
+    if(t.HasNoOnPlay&&this.actions(c).some(a=>a.proc.OnPlay)||t.HasNoOnAttack&&this.actions(c).some(a=>a.proc.OnAttack||a.proc.OnAttackLeader))return false;
     if(t.HasNoCounter&&this.counter(c)>0||t.HasBlocker&&!this.flags(c).Blocker||t.NotBlocker&&this.flags(c).Blocker||t.HasTrigger&&!this.actions(c).some(a=>a.proc.Trigger)||t.HasNoEffects&&this.actions(c).length)return false;
     if(t.NoUsingPreviousTargets&&ctx.previous?.includes(c.uid))return false;return true;
   }
