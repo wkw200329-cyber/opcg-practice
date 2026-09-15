@@ -190,3 +190,19 @@ test('OP04-006 lowers its active leader then gives itself power through the owne
   assert.equal(e.power(leader),e.def(leader).power-5000);
   assert.equal(e.power(c),e.def(c).power+2000);
 });
+
+test('OP04-012 gives only other Alabasta Kingdom characters 1000 power during its controller turn',()=>{
+  const e=game(),c=give(e,'OP04-012'),ally=e.card('OP04-010',0,'field'),other=e.card('ST02-003',0,'field');
+  assert.equal(e.power(ally),e.def(ally).power+1000);
+  assert.equal(e.power(other),e.def(other).power);
+  assert.equal(e.power(c),e.def(c).power);
+  e.s.active=1;
+  assert.equal(e.power(ally),e.def(ally).power);
+});
+
+test('OP04-009 lowers its active leader and queues its own return to hand at end of turn',()=>{
+  const e=game(),c=give(e,'OP04-009'),action=e.actions(c);
+  assert.equal(action[0].steps[0].effect.QueueUpEndOfTurnAction,1);
+  assert.equal(action[1].proc.QueuedEndOfTurn,true);
+  assert.equal(action[1].steps[0].effect.SendToHand,true);
+});
