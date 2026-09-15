@@ -625,3 +625,22 @@ test('OP04-084 deploys only an eligible non-Stussy CP character from its top thr
   assert.deepEqual(action.steps[1].target[0].OnlyCategories,['CP9','CP7','CP0','FormerCP9']);
   assert.equal(action.steps[2].effect.TrashTopDeck,true);
 });
+
+test('OP04-094 expands from cost four to cost six only after fifteen cards are in its controller trash',()=>{
+  const e=game(),c=give(e,'OP04-094','hand'),five=e.card('EB01-002',1,'field'),actions=e.actions(c),main=actions[0];
+  assert.equal(e.matchesGroup(five,main.steps[0],0,c,{}),false);
+  for(let i=0;i<15;i++)e.card('ST01-003',0,'trash');
+  assert.equal(e.matchesGroup(five,main.steps[0],0,c,{}),true);
+  assert.equal(actions[1].steps[0].target[0].Leader,true);
+  assert.equal(actions[1].steps[1].target[0].CostOrLess,5);
+});
+
+test('OP05-096 offers all four main removal destinations, draws for Celestial Dragons, and has a KO-or-bounce trigger',()=>{
+  const e=game(),c=give(e,'OP05-096','hand'),actions=e.actions(c),main=actions[0];
+  assert.equal(main.steps[0].effect.Choices.length,4);
+  assert.equal(main.steps[3].effect.SendToTopLife,true);
+  assert.equal(main.steps[4].effect.SendToBottomLife,true);
+  assert.deepEqual(main.steps[1].effect.DrawIfAllyCategoryInPlay,['CelestialDragon']);
+  assert.equal(actions[1].steps[0].effect.Choices.length,2);
+  assert.equal(actions[1].steps[1].target[0].CostOrLess,6);
+});
