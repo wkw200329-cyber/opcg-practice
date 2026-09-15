@@ -610,3 +610,18 @@ test('OP03-096 chooses either a zero-cost character KO or a cost-three stage KO,
   assert.equal(e.matchesGroup(stage,main.steps[2],0,c,{}),true);
   assert.equal(actions[1].steps[0].effect.DrawCards,2);
 });
+
+test('OP03-112 reveals four, takes an eligible Big Mom card or Sanji, then bottoms the remainder',()=>{
+  const e=game(),c=give(e,'OP03-112'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.StartTopDeck,4);
+  assert.deepEqual(action.steps[1].target[0].OnlyCategories,['BigMomPirates']);
+  assert.equal(action.steps[1].targetOverrides[0].OnlyNames[0],'Sanji');
+  assert.equal(action.steps[2].effect.TopDeckToDeckBottom,true);
+});
+
+test('OP04-084 deploys only an eligible non-Stussy CP character from its top three, then trashes the rest',()=>{
+  const e=game(),c=give(e,'OP04-084'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.StartTopDeck,3);
+  assert.deepEqual(action.steps[1].target[0].OnlyCategories,['CP9','CP7','CP0','FormerCP9']);
+  assert.equal(action.steps[2].effect.TrashTopDeck,true);
+});
