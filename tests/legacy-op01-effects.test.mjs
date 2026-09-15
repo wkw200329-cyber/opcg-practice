@@ -283,3 +283,18 @@ test('OP03-122 returns a character up to cost six, then draws and discards exact
   assert.equal(action.steps[2].target[0].TargetCount,2);
   assert.equal(action.steps[2].effect.TrashCard,true);
 });
+
+test('OP04-079 KOs a friendly Dressrosa character, reduces an opponent cost, then mills two',()=>{
+  const e=game(),c=give(e,'OP04-079'),ally=e.card('OP04-080',0,'field'),enemy=e.card('ST02-003',1,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(ally,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.KOCard,true);
+  assert.equal(e.matchesGroup(enemy,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.ChangeCost,-4);
+  assert.equal(action.steps[2].effect.MillDeck,2);
+});
+
+test('OP04-080 grants active-character attack permission to one friendly Dressrosa character',()=>{
+  const e=game(),c=give(e,'OP04-080'),ally=e.card('OP04-079',0,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(ally,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.GainCanAttackActive,true);
+});
