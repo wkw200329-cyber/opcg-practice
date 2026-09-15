@@ -580,3 +580,33 @@ test('OP04-100 trigger makes exactly one opposing leader or character unable to 
   assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
   assert.equal(action.steps[0].effect.CantAttack,true);
 });
+
+test('OP03-028 offers East Blue refresh or the paired rest option on play',()=>{
+  const e=game(),c=give(e,'OP03-028'),enemy=e.card('ST02-003',1,'field'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.Choices.length,2);
+  assert.equal(action.steps[1].target[0].OnlyCategories[0],'EastBlue');
+  assert.equal(action.steps[1].effect.Activate,true);
+  assert.equal(action.steps[2].target[0].AutoSelf,true);
+  assert.equal(e.matchesGroup(enemy,action.steps[3],0,c,{}),true);
+});
+
+test('OP03-036 and OP03-037 rest an active East Blue character as their main-action cost',()=>{
+  const e=game(),source=e.card('OP03-036',0,'field'),cost=e.card('OP03-028',0,'field'),kuro=e.card('OP03-021',0,'field'),enemy=e.card('EB01-015',1,'field'),first=e.actions(source)[0],second=e.actions(e.card('OP03-037',0,'hand'))[0];
+  assert.equal(e.matchesGroup(cost,first.steps[0],0,source,{}),true);
+  assert.equal(first.steps[1].target[0].OnlyNames[0],'Kuro');
+  assert.equal(e.matchesGroup(kuro,first.steps[1],0,source,{}),true);
+  assert.equal(e.matchesGroup(cost,second.steps[0],0,source,{}),true);
+  enemy.rested=true;
+  assert.equal(e.matchesGroup(enemy,second.steps[1],0,source,{}),true);
+  assert.equal(e.actions(e.card('OP03-036',0,'life'))[1].proc.Trigger,true);
+  assert.equal(e.actions(e.card('OP03-037',0,'life'))[1].steps[0].effect.DeployCharacter,true);
+});
+
+test('OP03-096 chooses either a zero-cost character KO or a cost-three stage KO, and its trigger draws two',()=>{
+  const e=game(),c=give(e,'OP03-096','hand'),zero=e.card('ST01-003',1,'field'),stage=e.card('ST14-017',1,'stage'),actions=e.actions(c),main=actions[0];
+  zero.mods.push({key:'cost',value:-e.cost(zero),until:'turn',owner:1});
+  assert.equal(main.steps[0].effect.Choices.length,2);
+  assert.equal(e.matchesGroup(zero,main.steps[1],0,c,{}),true);
+  assert.equal(e.matchesGroup(stage,main.steps[2],0,c,{}),true);
+  assert.equal(actions[1].steps[0].effect.DrawCards,2);
+});
