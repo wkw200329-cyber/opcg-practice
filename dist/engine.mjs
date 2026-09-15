@@ -2,6 +2,7 @@
 import {unsupported} from './coverage.mjs';
 import {extraCondition,extraConditionNames} from './conditions.mjs';
 import {enqueueRemoval,runRemoval,finishReplacement} from './replacements.mjs';
+import {legacyActions} from './legacy.mjs';
 export class RuleError extends Error {}
 class GameFinished extends Error {}
 export const clone=x=>structuredClone(x);
@@ -131,7 +132,7 @@ export class Engine {
     if(this.don(c.owner).length<(cost.DonMinus||0))return `需要返还 ${cost.DonMinus} 张 DON!!，场上只有 ${this.don(c.owner).length} 张`;
     return '';
   }
-  actions(c){if(c.mods?.some(m=>m.key==='flag'&&m.value==='Silence'))return [];return this.rule(c).actionV3s||[];}
+  actions(c){if(c.mods?.some(m=>m.key==='flag'&&m.value==='Silence'))return [];const r=this.rule(c);return r.actionV3s?.length?r.actionV3s:legacyActions(r);}
   beginAction(c,index,context={},triggered=false){
     const a=this.actions(c)[index];assert(a,'卡牌效果不存在');assert(this.conditions(a.proc,c,context),'未满足发动条件');assert(!a.proc.OncePerTurn||c.used[index]!==this.s.turn,'该效果本回合已使用');
     const costStep=a.steps?.[0];if(costStep?.effect?.DonTap)assert(this.readyDon(c.owner).length>=costStep.effect.DonTap,'可用 DON!! 不足');
