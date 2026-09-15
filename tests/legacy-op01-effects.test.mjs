@@ -487,3 +487,45 @@ test('OP05-080 requires twenty trash cards, returns exactly twenty, shuffles, an
   assert.equal(action.steps[2].effect.GainDoubleAttack,true);
   assert.equal(action.steps[2].effect.BuffCombatPower,10000);
 });
+
+test('OP04-116 gives 6000 combat power, then only at combined life four or less KOs an opposing cost-two-or-less character',()=>{
+  const e=game(),c=give(e,'OP04-116'),enemy=e.card('EB01-017',1,'field'),actions=e.actions(c);
+  assert.equal(e.conditions(actions[0].steps[1].details,c),false);
+  while(e.list(0,'life').length+e.list(1,'life').length>4)e.move(e.list(0,'life')[0]||e.list(1,'life')[0],'trash');
+  assert.equal(e.conditions(actions[0].steps[1].details,c),true);
+  assert.equal(e.matchesGroup(enemy,actions[0].steps[1],0,c,{}),true);
+  assert.equal(actions[0].steps[0].effect.BuffCombatPower,6000);
+  assert.equal(actions[1].steps[0].effect.DrawCards,1);
+});
+
+test('OP05-115 buffs first, rests a cost-four-or-less opponent only at one life, and its trigger discards two to heal',()=>{
+  const e=game(),c=give(e,'OP05-115'),enemy=e.card('ST02-014',1,'field'),actions=e.actions(c);
+  assert.equal(actions[0].steps[0].effect.BuffPower,3000);
+  assert.equal(e.conditions(actions[0].steps[1].details,c),false);
+  while(e.list(0,'life').length>1)e.move(e.list(0,'life')[0],'trash');
+  assert.equal(e.conditions(actions[0].steps[1].details,c),true);
+  assert.equal(e.matchesGroup(enemy,actions[0].steps[1],0,c,{}),true);
+  assert.equal(actions[1].steps[0].target[0].TargetCount,2);
+  assert.equal(actions[1].steps[1].effect.Heal,1);
+});
+
+test('OP05-094 lowers one opponent cost first, then freezes an opponent that is now cost zero; trigger draws two and discards one',()=>{
+  const e=game(),c=give(e,'OP05-094'),enemy=e.card('ST02-003',1,'field'),actions=e.actions(c);
+  assert.equal(actions[0].steps[0].effect.ChangeCost,-3);
+  e.applyEffects(actions[0].steps[0].effect,c,[enemy],{});
+  assert.equal(e.cost(enemy),0);
+  assert.equal(e.matchesGroup(enemy,actions[0].steps[1],0,c,{}),true);
+  assert.equal(actions[0].steps[1].effect.Freeze,true);
+  assert.equal(actions[1].steps[0].effect.DrawCards,2);
+  assert.equal(actions[1].steps[1].effect.TrashCard,true);
+});
+
+test('OP05-101 gains 1000 at two-or-fewer life and searches top five for Holly before optionally deploying Holly from hand',()=>{
+  const e=game(),c=give(e,'OP05-101'),holly=e.card('OP05-110',0,'hand'),actions=e.actions(c);
+  assert.equal(e.power(c),e.def(c).power);
+  while(e.list(0,'life').length>2)e.move(e.list(0,'life')[0],'trash');
+  assert.equal(e.power(c),e.def(c).power+1000);
+  assert.equal(actions[1].steps[0].effect.StartTopDeck,5);
+  assert.equal(e.matchesGroup(holly,actions[1].steps[3],0,c,{}),true);
+  assert.equal(actions[1].steps[3].effect.DeployCharacter,true);
+});
