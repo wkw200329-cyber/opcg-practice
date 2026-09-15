@@ -118,6 +118,7 @@ export class Engine {
     if(f.CantAttack||f.PassiveCantAttack)return '这张卡受效果限制，不能攻击';
     if(c.zone==='field'&&c.joined>=this.s.turn&&!f.Rush&&!(f.RushCharacters&&t.zone==='field'))return f.RushCharacters?'登场回合的速攻仅能攻击角色':'刚登场的角色本回合不能攻击（需要速攻）';
     const forced=[];for(const x of this.board(1-c.owner))for(const z of this.passive(x))if(z.effect.OpponentCanOnlyAttackMyName&&!forced.some(y=>y.uid===z.source.uid))forced.push(z.source);if(forced.length&&!forced.some(x=>x.uid===t.uid))return `必须攻击 ${forced.map(x=>this.name(x)).join(' 或 ')}`;
+    if(f.CantAttackLeader&&t.zone==='leader')return '这张卡本回合不能攻击领袖';
     if(t.zone==='field'&&!t.rested&&!f.CanAttackActive)return '对方角色未横置，不能选择为攻击目标';
     return '';
   }
@@ -276,7 +277,7 @@ export class Engine {
     if(e.TrashSelf)this.move(c,'trash');
     if(e.DonMinus){assert(this.don(o).length>=e.DonMinus,'DON!! 不足以支付费用');let ds=targets.filter(x=>x.zone==='don'&&x.owner===o);if(!ds.length)ds=[...this.restDon(o),...this.readyDon(o),...this.don(o).filter(x=>x.attached)];assert(ds.length>=e.DonMinus,'请选择足够的DON!!');for(const d of ds.slice(0,e.DonMinus)){delete d.attached;this.move(d,'donReserve')}this.emit('MyDonIsReturned',c,{owner:o,donReturned:{owner:o,count:e.DonMinus}});}
     if(e.OptionalReturnDon){const ds=targets.filter(x=>x.zone==='don'&&x.owner===o);for(const d of ds){delete d.attached;this.move(d,'donReserve')}if(ds.length)this.emit('MyDonIsReturned',c,{owner:o,donReturned:{owner:o,count:ds.length}});}
-    if(e.DrawCards)this.draw(o,e.DrawCards);
+    if(e.DrawCards)this.draw(o,e.DrawCards);if(e.DrawTo)this.draw(o,Math.max(0,e.DrawTo-this.list(o,'hand').length));
     if(e.AllCharsEffectImmune)for(const x of this.list(o,'field'))this.mod(x,'flag','ImmuneToOpponentNoncombat','oppEnd');
     if(e.ActivateMainOfCard)for(const x of targets){const i=this.actions(x).findIndex(a=>a.proc.ActivateMain);if(i>=0)this.s.queue.unshift({kind:'effect',uid:x.uid,index:i,step:0,group:0,targets:[],previous:[],context:{copied:true}});}
     if(e.TurnEndActivateDon){this.s.donActivations??=[];this.s.donActivations.push({owner:o,turn:this.s.turn,count:e.TurnEndActivateDon});this.log(`${this.name(c)}：将在回合结束时激活 ${e.TurnEndActivateDon} 张 DON!!`);}

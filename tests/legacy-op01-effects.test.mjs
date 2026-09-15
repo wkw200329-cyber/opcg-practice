@@ -97,3 +97,42 @@ test('OP01-120 has permanent Rush through its passive action',()=>{
   const e=game(),c=give(e,'OP01-120');
   assert.equal(e.flags(c).Rush,true);
 });
+
+test('OP02-051 draws only up to three cards in hand before offering a blue Impel Down character',()=>{
+  const e=game(),c=give(e,'OP02-051'),candidate=e.card('OP02-050',0,'hand');
+  while(e.list(0,'hand').length>2)e.move(e.list(0,'hand')[0],'trash');
+  const action=e.actions(c)[0];
+  assert.equal(e.conditions(action.proc,c),true);
+  e.applyEffects(action.steps[0].effect,c,[],{});
+  assert.equal(e.list(0,'hand').length,3);
+  assert.equal(e.matchesGroup(candidate,action.steps[1],0,c,{}),true);
+});
+
+test('OP02-102 protects itself from effects and gains combat power when a zero-cost card exists',()=>{
+  const e=game(),c=give(e,'OP02-102');
+  assert.equal(e.flags(c).ImmuneToNoncombat,true);
+  const zero=e.card('ST01-003',0,'field');
+  e.mod(zero,'cost',-e.def(zero).cost);
+  assert.equal(e.conditions(e.actions(c)[1].proc,c),true);
+});
+
+test('OP02-120 gives every friendly character 1000 power through the opponent turn start',()=>{
+  const e=game(),c=give(e,'OP02-120'),ally=e.card('ST02-003',0,'field'),action=e.actions(c)[0];
+  e.applyEffects(action.steps[0].effect,c,[ally],{});
+  assert.equal(e.power(ally),e.def(ally).power+1000);
+});
+
+test('OP03-004 cannot attack leaders but receives Rush while it has attached DON',()=>{
+  const e=game(),c=give(e,'OP03-004'),leader=e.list(1,'leader')[0];
+  e.s.players[0].turns=2;
+  assert.match(e.attackReason(c,leader),/不能攻击领袖/);
+  attach(e,c);
+  assert.equal(e.flags(c).Rush,true);
+});
+
+test('OP03-005 queues its own trash at the end of the turn after gaining power',()=>{
+  const e=game(),c=give(e,'OP03-005'),actions=e.actions(c);
+  assert.equal(actions[0].steps[0].effect.QueueUpEndOfTurnAction,1);
+  assert.equal(actions[1].proc.QueuedEndOfTurn,true);
+  assert.equal(actions[1].steps[0].effect.TrashSelf,true);
+});
