@@ -265,3 +265,12 @@ test('OP05-004 deploys only a different Revolutionary Army character with 5000 o
   assert.equal(e.conditions(action.proc,c),true);
   assert.equal(e.matchesGroup(candidate,action.steps[0],0,c,{}),true);
 });
+
+test('OP03-047 mills seven only after its attached-DON attack targets a leader, and returns a cost-three-or-less character on play',()=>{
+  const e=game(),c=give(e,'OP03-047'),enemy=e.card('ST02-003',1,'field'),actions=e.actions(c);
+  assert.equal(actions[0].proc.OnAttackLeader,true);
+  assert.equal(actions[0].steps[0].effect.MillDeck,7);
+  assert.equal(e.matchesGroup(enemy,actions[1].steps[0],0,c,{}),true);
+  assert.equal(actions[1].steps[0].effect.SendToHand,true);
+  assert.equal(actions[1].steps[1].effect.MillDeck,2);
+});
