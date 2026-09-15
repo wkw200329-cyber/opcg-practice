@@ -672,3 +672,11 @@ test('OP01-099 gives battle KO immunity only to other friendly Kurozumi characte
   assert.equal(e.matchesGroup(other,action.steps[0],0,source,{}),false);
   assert.equal(e.flags(ally).ImmuneToBattle,true);
 });
+
+test('OP02-027 resists opposing effects only while every own DON is rested',()=>{
+  const e=game(),c=give(e,'OP02-027');
+  for(const d of e.don(0))d.rested=true;
+  assert.equal(e.flags(c).ImmuneToOpponentNoncombat,true);
+  e.don(0)[0].rested=false;
+  assert.equal(e.flags(c).ImmuneToOpponentNoncombat,undefined);
+});
