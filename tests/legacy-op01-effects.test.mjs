@@ -423,3 +423,25 @@ test('OP06-047 carries its opponent context through hand shuffle and the five-ca
   assert.equal(opp.some(uid=>e.s.cards[uid].zone==='deck'),true);
   assert.equal(action.steps[0].effect.ForceOpponent,true);
 });
+
+test('OP04-048 returns every card from its controller hand, shuffles, and redraws the same count',()=>{
+  const e=game(),c=give(e,'OP04-048'),before=e.list(0,'hand').map(x=>x.uid),action=e.actions(c)[0];
+  e.s.queue.push({kind:'effect',uid:c.uid,index:0,step:0,group:0,targets:[],previous:[],context:{}});e.pump();
+  assert.equal(action.steps[0].effect.SaveTargetCount,true);
+  assert.equal(action.steps[0].effect.SendToDeckTop,true);
+  assert.equal(e.list(0,'hand').length,before.length);
+  assert.equal(before.some(uid=>e.s.cards[uid].zone==='hand'),false);
+  assert.equal(e.list(1,'hand').length,5);
+});
+
+test('OP05-043 checks a multicolor leader, adds one of the top three to hand, then offers top or bottom ordering',()=>{
+  const e=game(),c=give(e,'OP05-043'),action=e.actions(c)[0];
+  e.list(0,'leader')[0].id='OP04-001';
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(action.steps[0].effect.StartTopDeck,3);
+  assert.equal(action.steps[1].target[0].TopDeckCard,true);
+  assert.equal(action.steps[1].effect.SendToHand,true);
+  assert.equal(action.steps[2].effect.Choices.length,2);
+  assert.equal(action.steps[3].effect.TopDeckToDeckTop,true);
+  assert.equal(action.steps[4].effect.TopDeckToDeckBottom,true);
+});
