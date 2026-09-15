@@ -203,7 +203,7 @@ export class Engine {
   targetAllowed(p,uid,selected=[]){if(p.type!=='targets')return p.candidates?.includes(uid);const task=p.task,source=this.s.cards[task.uid],step=(task.action||this.actions(source)[task.index]).steps[task.step];return this.matchesGroup(this.s.cards[uid],step,p.group,source,{...task,selected});}
   matchesGroup(c,step,group,source,ctx){return [step.target[group],...(step.targetOverrides||[])].some(target=>this.matches(c,target,source,ctx));}
   matches(c,t,source,ctx={}){
-    const r=this.rule(c),d=this.def(c),o=source.owner;
+    const r=this.rule(c),d=this.def(c),o=ctx.context?.forceOpponent?1-source.owner:source.owner;
     if((t.AutoSelf||t.OnlySelf)&&ctx.context?.delayed&&(source.incarnation||0)!==ctx.context.incarnation)return false;
     if(t.AutoSelf&&c.uid!==source.uid||t.OnlySelf&&c.uid!==source.uid||t.NotSelf&&c.uid===source.uid||t.RequirePreviousTargets&&!ctx.previous?.includes(c.uid))return false;
     if(t.NameMatchesSaved&&this.rule(c).characterName!==ctx.savedTargetName)return false;
@@ -239,7 +239,7 @@ export class Engine {
     const c=this.s.cards[t.uid],a=t.action||this.actions(c)[t.index],step=a?.steps[t.step];if(!step){if(t.searched)this.shuffle(this.s.players[c.owner].deck);finishReplacement(this,t);return;}
     if(step.details?.SearchingDeck)t.searched=true;
     if(!this.conditions(step.details||{},c,{...t.context,previous:t.previous,revealed:t.revealed,declaredCost:t.declaredCost})||step.details?.CanUseOnPlays&&!this.actions(c).some(a=>a.proc.OnPlay&&this.conditions(a.proc,c,t.context))){if(!step.details?.Required){t.step++;t.targets=[];t.group=0;this.s.queue.unshift(t)}return}
-    const e={...step.effect};if(e.DonMinusToOppCount)e.DonMinus=Math.max(0,this.don(c.owner).length-this.don(1-c.owner).length);const browseZone=!!(e.StartTopDeckFromTrash||e.StartTopDeckFromOppTrash||e.StartTopDeckFromHand||e.StartTopDeckFromDeck||e.StartTopDeckFromLifeAll||e.StartTopDeckFromOppLifeAll);
+    const e={...step.effect};if(e.ForceOpponent)t.context.forceOpponent=true;if(t.context.forceOpponent)e.ForceOpponent=true;if(e.DonMinusToOppCount)e.DonMinus=Math.max(0,this.don(c.owner).length-this.don(1-c.owner).length);const browseZone=!!(e.StartTopDeckFromTrash||e.StartTopDeckFromOppTrash||e.StartTopDeckFromHand||e.StartTopDeckFromDeck||e.StartTopDeckFromLifeAll||e.StartTopDeckFromOppLifeAll);
     if((e.PeekSelfLife||e.PeekOppLife)&&!t.peekConfirmed){const peek=this.list(e.PeekOppLife?1-c.owner:c.owner,'life')[0];if(peek){this.ask({type:'peek',owner:c.owner,peek:peek.uid,task:t,title:'查看最上方的生命牌（查看不会改变正反面状态）'});return}}
     if(e.DeclareCost&&t.declaredCost===undefined){this.ask({type:'declareCost',owner:c.owner,task:t,title:'宣言一个费用（0–10）'});return}
     if(e.DonTap&&this.readyDon(c.owner).length<e.DonTap||e.RestSelf&&this.flags(c).CantRest){if(!step.details?.Required){t.step++;t.targets=[];t.group=0;delete t.prepared;this.s.queue.unshift(t)}return}

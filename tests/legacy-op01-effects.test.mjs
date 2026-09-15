@@ -413,3 +413,13 @@ test('OP04-008 needs Vivi and performs its -3000 power change before offering th
   assert.equal(e.matchesGroup(enemy,action.steps[1],0,c,{}),true);
   assert.equal(action.steps[1].effect.KOCard,true);
 });
+
+test('OP06-047 carries its opponent context through hand shuffle and the five-card redraw',()=>{
+  const e=game(),c=give(e,'OP06-047'),action=e.actions(c)[0];
+  const own=e.list(0,'hand').map(x=>x.uid),opp=e.list(1,'hand').map(x=>x.uid),task={kind:'effect',uid:c.uid,index:0,step:0,group:0,targets:[],previous:[],context:{}};
+  e.s.queue.push(task);e.pump();
+  assert.deepEqual(e.list(0,'hand').map(x=>x.uid),own);
+  assert.equal(e.list(1,'hand').length,5);
+  assert.equal(opp.some(uid=>e.s.cards[uid].zone==='deck'),true);
+  assert.equal(action.steps[0].effect.ForceOpponent,true);
+});
