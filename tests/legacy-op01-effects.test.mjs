@@ -349,3 +349,33 @@ test('OP05-088 rests and pays one DON, returns two trash cards, then retrieves o
   assert.equal(e.matchesGroup(wrong,action.steps[2],0,c,{}),false);
   assert.equal(action.steps[2].effect.SendToHand,true);
 });
+
+test('OP03-027 rests an opposing cost-two-or-less character for an East Blue leader, then deploys Butchie only when absent',()=>{
+  const e=game(),c=give(e,'OP03-027'),enemy=e.card('EB01-015',1,'field'),butchie=e.card('OP03-034',0,'hand'),action=e.actions(c)[0];
+  e.list(0,'leader')[0].id='OP03-021';
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(butchie,action.steps[1],0,c,{}),true);
+  e.card('OP03-034',0,'field');
+  assert.equal(e.conditions(action.steps[1].details,c),false);
+});
+
+test('OP03-039 rests an opposing cost-one-or-less character, buffs one friendly character, and has its separate trigger rest',()=>{
+  const e=game(),c=give(e,'OP03-039'),small=e.card('EB01-015',1,'field'),friendly=e.card('ST01-003',0,'field'),larger=e.card('ST02-014',1,'field'),actions=e.actions(c);
+  assert.equal(e.matchesGroup(small,actions[0].steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(larger,actions[0].steps[0],0,c,{}),false);
+  assert.equal(actions[0].steps[1].effect.BuffPower,1000);
+  assert.equal(e.matchesGroup(friendly,actions[0].steps[1],0,c,{}),true);
+  assert.equal(actions[1].proc.Trigger,true);
+  assert.equal(actions[1].steps[0].target[0].CostOrLess,4);
+});
+
+test('OP05-007 selects up to two opposing characters whose combined current power is at most 4000, then KOs them',()=>{
+  const e=game(),c=give(e,'OP05-007'),one=e.card('EB01-015',1,'field'),two=e.card('EB01-017',1,'field'),large=e.card('ST02-014',1,'field'),action=e.actions(c)[0];
+  const target=action.steps[0].target[0];
+  assert.equal(e.matches(one,target,c,{}),true);
+  assert.equal(e.matches(two,target,c,{selected:[one.uid]}),true);
+  assert.equal(e.matches(large,target,c,{}),false);
+  assert.equal(target.CombinedPowerXOrLess,4000);
+  assert.equal(action.steps[0].effect.KOCard,true);
+});
