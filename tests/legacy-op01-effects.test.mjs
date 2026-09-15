@@ -65,3 +65,35 @@ test('OP01-112 returns one DON and lets its character attack active targets for 
   assert.equal(action.steps[0].effect.DonMinus,1);
   assert.equal(action.steps[1].effect.GainCanAttackActive,true);
 });
+
+test('OP01-083 counts every two Events in trash for its attached-DON power bonus',()=>{
+  const e=game(),c=give(e,'OP01-083');
+  e.list(0,'leader')[0].id='OP01-062'; // Crocodile is a Baroque Works leader.
+  attach(e,c);
+  e.card('OP01-088',0,'trash');
+  e.card('OP01-088',0,'trash');
+  assert.equal(e.power(c),e.def(c).power+1000+1000);
+});
+
+test('OP01-091 applies its 10-DON debuff only to opposing characters on its controller turn',()=>{
+  const e=game(),c=give(e,'OP01-091'),enemy=e.card('ST02-003',1,'field');
+  for(let i=e.don(0).length;i<10;i++)e.card('DON',0,'don');
+  assert.equal(e.power(enemy),e.def(enemy).power-1000);
+  e.s.active=1;
+  assert.equal(e.power(enemy),e.def(enemy).power);
+});
+
+test('OP01-094 selects every other character for its six-DON on-play KO',()=>{
+  const e=game(),c=give(e,'OP01-094'),ally=e.card('ST01-003',0,'field'),enemy=e.card('ST02-003',1,'field');
+  e.list(0,'leader')[0].id='ST04-001';
+  const target=e.actions(c)[0].steps[0].target[0];
+  assert.equal(target.AutoAllMatchingTargets,true);
+  assert.equal(e.matchesGroup(ally,{target:[target]},0,c,{}),true);
+  assert.equal(e.matchesGroup(enemy,{target:[target]},0,c,{}),true);
+  assert.equal(e.matchesGroup(c,{target:[target]},0,c,{}),false);
+});
+
+test('OP01-120 has permanent Rush through its passive action',()=>{
+  const e=game(),c=give(e,'OP01-120');
+  assert.equal(e.flags(c).Rush,true);
+});
