@@ -557,3 +557,26 @@ test('OP05-002 discards a Revolutionary Army hand card to give 3000 to up to thr
   assert.equal(action.steps[1].target[0].TargetCount,3);
   assert.equal(action.steps[1].effect.BuffPower,3000);
 });
+
+test('OP04-017 reduces an opposing combat target twice only while its leader is active',()=>{
+  const e=game(),c=give(e,'OP04-017','hand'),enemy=e.list(1,'leader')[0],action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.BuffCombatPower,-2000);
+  assert.equal(action.steps[1].details.LeaderActive,true);
+  assert.equal(action.steps[1].effect.BuffCombatPower,-1000);
+});
+
+test('OP04-112 KOs only up to combined life cost and heals once at one or less own life',()=>{
+  const e=game(),c=give(e,'OP04-112'),eligible=e.card('EB01-017',1,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(eligible,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].target[0].CostCombinedLifeOrLess,true);
+  assert.equal(action.steps[1].details.LifeXOrLess,1);
+  assert.equal(action.steps[1].effect.Heal,1);
+});
+
+test('OP04-100 trigger makes exactly one opposing leader or character unable to attack for the turn',()=>{
+  const e=game(),c=give(e,'OP04-100','life'),enemy=e.card('ST02-003',1,'field'),action=e.actions(c)[0];
+  assert.equal(action.proc.Trigger,true);
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.CantAttack,true);
+});
