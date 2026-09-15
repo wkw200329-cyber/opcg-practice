@@ -136,3 +136,26 @@ test('OP03-005 queues its own trash at the end of the turn after gaining power',
   assert.equal(actions[1].proc.QueuedEndOfTurn,true);
   assert.equal(actions[1].steps[0].effect.TrashSelf,true);
 });
+
+test('OP02-074 gives Blocker only to a friendly Blugori while Saldeath remains in play',()=>{
+  const e=game(),source=give(e,'OP02-074'),blugori=e.card('OP02-084',0,'field'),other=e.card('ST02-003',0,'field');
+  assert.equal(e.flags(blugori).Blocker,true);
+  assert.equal(e.flags(other).Blocker,undefined);
+  e.move(source,'trash');
+  assert.equal(e.flags(blugori).Blocker,undefined);
+});
+
+test('OP03-002 gains Unblockable for its attack only while it has attached DON',()=>{
+  const e=game(),c=give(e,'OP03-002'),action=e.actions(c)[0];
+  assert.equal(e.conditions(action.proc,c),false);
+  attach(e,c);
+  assert.equal(e.conditions(action.proc,c),true);
+  e.applyEffects(action.steps[0].effect,c,[c],{});
+  assert.equal(e.flags(c).Unblockable,true);
+});
+
+test('OP03-032 is immune to Slash character attacks through its passive strike filter',()=>{
+  const e=game(),c=give(e,'OP03-032'),slash=e.card('ST02-005',1,'field');
+  assert.equal(e.flags(c).ImmuneToStrikes.includes('Slash'),true);
+  assert.equal(e.battleImmune(c,slash),e.rule(slash).strikeType==='Slash');
+});
