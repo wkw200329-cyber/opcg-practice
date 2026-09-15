@@ -207,7 +207,7 @@ export class Engine {
     if((t.AutoSelf||t.OnlySelf)&&ctx.context?.delayed&&(source.incarnation||0)!==ctx.context.incarnation)return false;
     if(t.AutoSelf&&c.uid!==source.uid||t.OnlySelf&&c.uid!==source.uid||t.NotSelf&&c.uid===source.uid||t.RequirePreviousTargets&&!ctx.previous?.includes(c.uid))return false;
     if(t.NameMatchesSaved&&this.rule(c).characterName!==ctx.savedTargetName)return false;
-    if(t.FriendlyOnly&&c.owner!==o||t.EnemyOnly&&c.owner===o||t.ActiveOnly&&c.rested||t.RestedOnly&&!c.rested||t.FaceUp&&!c.faceUp)return false;
+    if(t.FriendlyOnly&&c.owner!==o||t.EnemyOnly&&c.owner===o||t.ActiveOnly&&c.rested||t.RestedOnly&&!c.rested||t.FaceUp&&!c.faceUp||t.TopOrBottomLife&&c.zone==='life'&&c!==this.list(c.owner,'life')[0]&&c!==this.list(c.owner,'life').at(-1))return false;
     const zones={DeployedCharacter:'field',Leader:'leader',HandCard:'hand',TrashCard:'trash',StageCard:'stage',DeckCard:'deck',LifeCard:'life',TopDeckCard:'reveal',DonAreaCard:'don'};
     const allowed=Object.entries(zones).filter(([k])=>t[k]&&k!=='TopDeckCard'&&k!=='DonAreaCard').map(([,z])=>z),isDonTarget=c.zone==='don'&&(t.AttachedDon&&c.attached||t.DonAreaCard&&!c.attached);
     if((allowed.length||t.TopDeckCard||t.AttachedDon||t.DonAreaCard)&&!allowed.includes(c.zone)&&!isDonTarget&&!(t.TopDeckCard&&ctx.revealed?.uids.includes(c.uid)&&c.zone===ctx.revealed.from))return false;

@@ -644,3 +644,14 @@ test('OP05-096 offers all four main removal destinations, draws for Celestial Dr
   assert.equal(actions[1].steps[0].effect.Choices.length,2);
   assert.equal(actions[1].steps[1].target[0].CostOrLess,6);
 });
+
+test('OP04-117 offers face-up top or bottom life placement and lets its trigger take only a top or bottom life card',()=>{
+  const e=game(),c=give(e,'OP04-117','hand'),enemy=e.card('ST02-003',1,'field'),life=e.list(0,'life'),actions=e.actions(c),main=actions[0];
+  assert.equal(main.steps[0].effect.Choices.length,2);
+  assert.equal(e.matchesGroup(enemy,main.steps[1],0,c,{}),true);
+  assert.equal(main.steps[1].effect.ForcedFaceUp,true);
+  assert.equal(e.matchesGroup(life[0],actions[1].steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(life.at(-1),actions[1].steps[0],0,c,{}),true);
+  assert.equal(e.matchesGroup(life[1],actions[1].steps[0],0,c,{}),false);
+  assert.equal(actions[1].steps[1].effect.SendToTopLife,true);
+});
