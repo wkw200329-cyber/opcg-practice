@@ -206,3 +206,18 @@ test('OP04-009 lowers its active leader and queues its own return to hand at end
   assert.equal(action[1].proc.QueuedEndOfTurn,true);
   assert.equal(action[1].steps[0].effect.SendToHand,true);
 });
+
+test('OP03-040 changes deck-out into a win and mills one card on an attached-DON attack',()=>{
+  const e=game(),leader=e.list(0,'leader')[0];
+  leader.id='OP03-040';
+  assert.equal(e.flags(leader).WinsByDeckout,true);
+  assert.equal(e.actions(leader)[1].steps[0].effect.MillDeck,1);
+});
+
+test('OP01-098 searches the deck only for Artificial Devil Fruit Smile, adds it to hand, then shuffles',()=>{
+  const e=game(),c=give(e,'OP01-098'),actions=e.actions(c)[0];
+  assert.equal(actions.steps[0].effect.StartTopDeckFromDeck,true);
+  assert.deepEqual(actions.steps[0].target[0].OnlyNames,['Artificial Devil Fruit Smile']);
+  assert.equal(actions.steps[1].effect.SendToHand,true);
+  assert.equal(actions.steps[2].effect.ShuffleDeck,true);
+});
