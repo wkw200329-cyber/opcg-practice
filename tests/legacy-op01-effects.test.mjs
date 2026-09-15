@@ -244,3 +244,24 @@ test('OP04-096 and OP04-118 give Rush only to their matching field characters',(
   e.move(source,'trash');
   assert.equal(e.flags(dressrosa).Rush,undefined);
 });
+
+test('OP04-097 puts a matching opposing Animal or SMILE character face up on top of life',()=>{
+  const e=game(),c=give(e,'OP04-097'),animal=e.card('ST01-003',1,'field'),target=e.actions(c)[0].steps[0];
+  assert.equal(e.matchesGroup(animal,target,0,c,{}),true);
+  assert.equal(target.effect.SendToTopLife,true);
+  assert.equal(target.effect.ForcedFaceUp,true);
+});
+
+test('OP04-115 takes life then gives Double Attack only to a Wano character',()=>{
+  const e=game(),c=give(e,'OP04-115'),wano=e.card('OP01-092',0,'field'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.TakeTopLife,1);
+  assert.equal(e.matchesGroup(wano,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.GainDoubleAttack,true);
+});
+
+test('OP05-004 deploys only a different Revolutionary Army character with 5000 or less power after reaching 7000',()=>{
+  const e=game(),c=give(e,'OP05-004'),candidate=e.card('OP05-006',0,'hand'),action=e.actions(c)[0];
+  e.mod(c,'power',e.def(c).power>=7000?0:7000-e.def(c).power);
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(e.matchesGroup(candidate,action.steps[0],0,c,{}),true);
+});
