@@ -664,3 +664,11 @@ test('OP04-011 reveals one card on attack, buffs only for a 6000-or-more charact
   assert.equal(action.steps[1].effect.BuffPower,3000);
   assert.equal(action.steps[2].effect.TopDeckToDeckBottom,true);
 });
+
+test('OP01-099 gives battle KO immunity only to other friendly Kurozumi characters',()=>{
+  const e=game(),source=give(e,'OP01-099'),ally=e.card('OP01-098',0,'field'),other=e.card('ST01-003',0,'field'),action=e.actions(source)[0];
+  assert.equal(e.matchesGroup(ally,action.steps[0],0,source,{}),true);
+  assert.equal(e.matchesGroup(source,action.steps[0],0,source,{}),false);
+  assert.equal(e.matchesGroup(other,action.steps[0],0,source,{}),false);
+  assert.equal(e.flags(ally).ImmuneToBattle,true);
+});
