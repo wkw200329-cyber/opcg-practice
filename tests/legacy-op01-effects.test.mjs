@@ -274,3 +274,12 @@ test('OP03-047 mills seven only after its attached-DON attack targets a leader, 
   assert.equal(actions[1].steps[0].effect.SendToHand,true);
   assert.equal(actions[1].steps[1].effect.MillDeck,2);
 });
+
+test('OP03-122 returns a character up to cost six, then draws and discards exactly two cards',()=>{
+  const e=game(),c=give(e,'OP03-122'),enemy=e.card('EB01-012',1,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.SendToHand,true);
+  assert.equal(action.steps[1].effect.DrawCards,2);
+  assert.equal(action.steps[2].target[0].TargetCount,2);
+  assert.equal(action.steps[2].effect.TrashCard,true);
+});
