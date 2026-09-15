@@ -159,3 +159,34 @@ test('OP03-032 is immune to Slash character attacks through its passive strike f
   assert.equal(e.flags(c).ImmuneToStrikes.includes('Slash'),true);
   assert.equal(e.battleImmune(c,slash),e.rule(slash).strikeType==='Slash');
 });
+
+test('OP03-059 gains Banish for its attack when it returns one DON',()=>{
+  const e=game(),c=give(e,'OP03-059'),action=e.actions(c)[0];
+  assert.equal(action.steps[0].effect.GainBanish,true);
+  e.applyEffects(action.steps[0].effect,c,[c],{});
+  assert.equal(e.flags(c).Banish,true);
+});
+
+test('OP03-078 reduces only opposing field costs with attached DON and discards two at six opposing hand cards',()=>{
+  const e=game(),c=give(e,'OP03-078'),enemy=e.card('ST02-003',1,'field');
+  const base=e.def(enemy).cost;
+  assert.equal(e.cost(enemy),base);
+  attach(e,c);
+  assert.equal(e.cost(enemy),Math.max(0,base-3));
+  while(e.list(1,'hand').length<6)e.card('ST01-003',1,'hand');
+  assert.equal(e.conditions(e.actions(c)[1].proc,c),true);
+});
+
+test('OP04-003 targets an opposing character with printed power at most 5000 after KO',()=>{
+  const e=game(),c=give(e,'OP04-003'),small=e.card('ST02-003',1,'field'),large=e.card('EB01-002',1,'field'),target=e.actions(c)[0].steps[0];
+  assert.equal(e.matchesGroup(small,target,0,c,{}),true);
+  assert.equal(e.matchesGroup(large,target,0,c,{}),false);
+});
+
+test('OP04-006 lowers its active leader then gives itself power through the owner next turn start',()=>{
+  const e=game(),c=give(e,'OP04-006'),leader=e.list(0,'leader')[0],action=e.actions(c)[0];
+  e.applyEffects(action.steps[0].effect,c,[leader],{});
+  e.applyEffects(action.steps[1].effect,c,[c],{});
+  assert.equal(e.power(leader),e.def(leader).power-5000);
+  assert.equal(e.power(c),e.def(c).power+2000);
+});
