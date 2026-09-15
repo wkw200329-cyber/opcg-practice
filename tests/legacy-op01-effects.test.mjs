@@ -655,3 +655,12 @@ test('OP04-117 offers face-up top or bottom life placement and lets its trigger 
   assert.equal(e.matchesGroup(life[1],actions[1].steps[0],0,c,{}),false);
   assert.equal(actions[1].steps[1].effect.SendToTopLife,true);
 });
+
+test('OP04-011 reveals one card on attack, buffs only for a 6000-or-more character, then bottoms it',()=>{
+  const e=game(),c=give(e,'OP04-011'),action=e.actions(c)[0];
+  assert.equal(action.proc.OnAttack,true);
+  assert.equal(action.steps[0].effect.StartTopDeck,1);
+  assert.equal(action.steps[1].target[0].PowerXOrMore,6000);
+  assert.equal(action.steps[1].effect.BuffPower,3000);
+  assert.equal(action.steps[2].effect.TopDeckToDeckBottom,true);
+});
