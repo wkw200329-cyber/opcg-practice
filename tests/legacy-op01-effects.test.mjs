@@ -379,3 +379,37 @@ test('OP05-007 selects up to two opposing characters whose combined current powe
   assert.equal(target.CombinedPowerXOrLess,4000);
   assert.equal(action.steps[0].effect.KOCard,true);
 });
+
+test('OP04-043 presents a real choice to return an eligible character to hand or to the deck bottom',()=>{
+  const e=game(),c=give(e,'OP04-043'),enemy=e.card('EB01-017',1,'field'),action=e.actions(c)[0];
+  attach(e,c);
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(action.steps[0].effect.Choices.length,2);
+  assert.equal(e.matchesGroup(enemy,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.SendToHand,true);
+  assert.equal(action.steps[2].effect.SendToDeckBottom,true);
+  assert.equal(action.steps[2].details.EndAfterStep,true);
+});
+
+test('OP03-123 first selects a cost-eight-or-less character, then chooses its face-up top or bottom life placement',()=>{
+  const e=game(),c=give(e,'OP03-123'),enemy=e.card('ST02-014',1,'field'),action=e.actions(c)[0];
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[1].effect.Choices.length,2);
+  assert.equal(action.steps[2].target[0].AutoCopyPreviousTargets,true);
+  assert.equal(action.steps[2].effect.SendToTopLife,true);
+  assert.equal(action.steps[3].effect.SendToBottomLife,true);
+  assert.equal(action.steps[3].effect.ForcedFaceUp,true);
+});
+
+test('OP04-008 needs Vivi and performs its -3000 power change before offering the zero-power KO',()=>{
+  const e=game(),c=give(e,'OP04-008'),enemy=e.card('ST02-003',1,'field'),action=e.actions(c)[0];
+  e.list(0,'leader')[0].id='OP04-001';
+  attach(e,c);
+  assert.equal(e.conditions(action.proc,c),true);
+  assert.equal(e.matchesGroup(enemy,action.steps[0],0,c,{}),true);
+  assert.equal(action.steps[0].effect.BuffPower,-3000);
+  e.applyEffects(action.steps[0].effect,c,[enemy],{});
+  assert.equal(e.power(enemy),0);
+  assert.equal(e.matchesGroup(enemy,action.steps[1],0,c,{}),true);
+  assert.equal(action.steps[1].effect.KOCard,true);
+});
