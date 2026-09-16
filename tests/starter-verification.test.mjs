@@ -89,3 +89,36 @@ test('ST02-017 Straw Sword rests one active opposing character and pays exactly 
   e.dispatch({type:'choose',uids:[enemy.uid]});
   assert.equal(sword.zone,'trash');assert.equal(enemy.rested,true);assert.equal(e.restDon(1).length,2);
 });
+
+test('ST02-010 Hawkins reactivates after battling an opposing character once each owner turn with DON attached',()=>{
+  const e=game(),hawkins=e.card('ST02-010',1,'field'),enemy=e.card('ST01-003',0,'field');
+  hawkins.joined=e.s.turn-1;enemy.rested=true;e.s.active=1;e.s.players[1].turns=2;
+  const don=e.list(1,'donReserve')[0];e.move(don,'don');don.attached=hawkins.uid;
+  e.dispatch({type:'attack',uid:hawkins.uid,target:enemy.uid});
+  e.dispatch({type:'choose',value:'finish'});
+  assert.equal(hawkins.rested,false);
+  assert.equal(hawkins.used[0],e.s.turn);
+});
+
+test('ST02-013 Kid reactivates itself at its owner turn end only when DON is attached',()=>{
+  const e=game(),kid=e.card('ST02-013',1,'field');
+  e.s.active=1;e.s.players[1].turns=2;kid.rested=true;
+  const don=e.list(1,'donReserve')[0];e.move(don,'don');don.attached=kid.uid;
+  e.dispatch({type:'endTurn'});
+  assert.equal(kid.rested,false);
+});
+
+test('ST02-015 Scalpel life trigger trashes itself and reactivates up to two rested friendly DON',()=>{
+  const e=game(),attacker=e.card('ST01-003',0,'field'),leader=e.list(1,'leader')[0];
+  attacker.joined=e.s.turn-1;e.s.active=0;e.s.players[0].turns=2;
+  for(let i=0;i<3;i++){const don=e.list(0,'donReserve')[0];e.move(don,'don');don.attached=attacker.uid;}
+  for(const card of e.list(1,'life').slice())e.move(card,'trash');
+  const scalpel=e.card('ST02-015',1,'life');
+  for(const don of e.list(1,'donReserve').slice(0,2)){e.move(don,'don');don.rested=true;}
+  e.dispatch({type:'attack',uid:attacker.uid,target:leader.uid});
+  e.dispatch({type:'choose',value:'finish'});
+  assert.equal(e.s.prompt.type,'lifeTrigger');
+  e.dispatch({type:'choose',value:'yes'});
+  assert.equal(e.s.prompt.type,'targets');e.dispatch({type:'choose',uids:e.s.prompt.candidates});
+  assert.equal(scalpel.zone,'trash');assert.ok(e.don(1).every(don=>!don.rested));
+});

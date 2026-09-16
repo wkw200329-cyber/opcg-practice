@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-16T08:33:33.631Z",
+  "generatedAt": "2026-09-16T08:39:49.732Z",
   "totalCards": 2857,
-  "testReferencedCards": 191,
-  "notYetIndividuallyCertified": 2666,
+  "testReferencedCards": 193,
+  "notYetIndividuallyCertified": 2664,
   "note": "“测试引用”表示该卡出现在可执行规则测试中，不等于该卡全部效果已经逐条人工核验。未逐卡认证的卡必须继续以中文官方卡表建立场景测试。",
   "evidence": {
     "EB01-002": {
@@ -858,6 +858,11 @@
         "starter-verification.test.mjs"
       ]
     },
+    "ST02-010": {
+      "testFiles": [
+        "starter-verification.test.mjs"
+      ]
+    },
     "ST02-013": {
       "testFiles": [
         "starter-verification.test.mjs"
@@ -867,6 +872,11 @@
       "testFiles": [
         "legacy-op01-effects.test.mjs",
         "rules-expansion.test.mjs",
+        "starter-verification.test.mjs"
+      ]
+    },
+    "ST02-015": {
+      "testFiles": [
         "starter-verification.test.mjs"
       ]
     },
@@ -1011,12 +1021,10 @@
     {
       "name": "ST02 - Worst Generation",
       "total": 17,
-      "testReferenced": 13,
+      "testReferenced": 15,
       "notYetReferenced": [
-        "ST02-010",
         "ST02-011",
-        "ST02-012",
-        "ST02-015"
+        "ST02-012"
       ]
     },
     {
