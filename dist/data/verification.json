@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-16T02:20:09.099Z",
+  "generatedAt": "2026-09-16T08:33:33.631Z",
   "totalCards": 2857,
-  "testReferencedCards": 185,
-  "notYetIndividuallyCertified": 2672,
+  "testReferencedCards": 191,
+  "notYetIndividuallyCertified": 2666,
   "note": "“测试引用”表示该卡出现在可执行规则测试中，不等于该卡全部效果已经逐条人工核验。未逐卡认证的卡必须继续以中文官方卡表建立场景测试。",
   "evidence": {
     "EB01-002": {
@@ -725,6 +725,7 @@
         "event-timing-batch.test.mjs",
         "legacy-op01-effects.test.mjs",
         "rules-expansion.test.mjs",
+        "starter-verification.test.mjs",
         "threshold-conditions.test.mjs",
         "trigger-order.test.mjs"
       ]
@@ -817,6 +818,7 @@
         "event-timing-batch.test.mjs",
         "legacy-op01-effects.test.mjs",
         "rules-expansion.test.mjs",
+        "starter-verification.test.mjs",
         "threshold-conditions.test.mjs",
         "trigger-order.test.mjs"
       ]
@@ -825,24 +827,57 @@
       "testFiles": [
         "engine.test.mjs",
         "legacy-op01-effects.test.mjs",
-        "rules-expansion.test.mjs"
+        "rules-expansion.test.mjs",
+        "starter-verification.test.mjs"
       ]
     },
     "ST02-005": {
       "testFiles": [
         "legacy-op01-effects.test.mjs",
+        "starter-verification.test.mjs",
         "trigger-order.test.mjs"
+      ]
+    },
+    "ST02-006": {
+      "testFiles": [
+        "starter-verification.test.mjs"
+      ]
+    },
+    "ST02-007": {
+      "testFiles": [
+        "starter-verification.test.mjs"
+      ]
+    },
+    "ST02-008": {
+      "testFiles": [
+        "starter-verification.test.mjs"
+      ]
+    },
+    "ST02-009": {
+      "testFiles": [
+        "starter-verification.test.mjs"
+      ]
+    },
+    "ST02-013": {
+      "testFiles": [
+        "starter-verification.test.mjs"
       ]
     },
     "ST02-014": {
       "testFiles": [
         "legacy-op01-effects.test.mjs",
-        "rules-expansion.test.mjs"
+        "rules-expansion.test.mjs",
+        "starter-verification.test.mjs"
       ]
     },
     "ST02-016": {
       "testFiles": [
         "event-timing-batch.test.mjs"
+      ]
+    },
+    "ST02-017": {
+      "testFiles": [
+        "starter-verification.test.mjs"
       ]
     },
     "ST03-007": {
@@ -976,18 +1011,12 @@
     {
       "name": "ST02 - Worst Generation",
       "total": 17,
-      "testReferenced": 7,
+      "testReferenced": 13,
       "notYetReferenced": [
-        "ST02-006",
-        "ST02-007",
-        "ST02-008",
-        "ST02-009",
         "ST02-010",
         "ST02-011",
         "ST02-012",
-        "ST02-013",
-        "ST02-015",
-        "ST02-017"
+        "ST02-015"
       ]
     },
     {
