@@ -6,7 +6,7 @@ import {table} from './table.mjs';
 import {unsupported} from './coverage.mjs';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let cards=[],decks=[],db={},page='setup',catalogPage=0,chosen=[0,1],cardsReady=false,cardsLoading=null;
+let cards=[],decks=[],db={},verification={evidence:{}},page='setup',catalogPage=0,chosen=[0,1],cardsReady=false,cardsLoading=null;
 let filters={q:'',type:'',color:'',set:''};
 let engine,selected=[],attackFrom=null;
 const sound=new GameSound();
@@ -67,7 +67,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
 });
 document.addEventListener('pointerover',e=>{const card=e.target.closest('[data-board]');if(card)previewCard(card.dataset.board)});
 document.addEventListener('focusin',e=>{const card=e.target.closest('[data-board]');if(card)previewCard(card.dataset.board)});
-async function init(){try{cards=await(await fetch('./data/bootstrap.json?v=20260914i')).json();db=Object.fromEntries(cards.map(c=>[c.id,c]));decks=await(await fetch('./data/decks.json?v=20260914i')).json();decks=decks.filter(d=>leader(d));engine=new Engine(cards,{});try{decks.push(...JSON.parse(localStorage.getItem('opcg-decks')||'[]'));const saved=JSON.parse(localStorage.getItem('opcg-game')||'null');if(saved?.s?.version===1){engine.s=saved.s;engine.seed=saved.seed;engine.serial=saved.serial;engine.assertState();}}catch(e){console.warn('存档不可用',e);engine.s=null;}let a=decks.findIndex(d=>d.name.startsWith('ST01')),b=decks.findIndex(d=>d.name.startsWith('ST02'));chosen=[Math.max(a,0),Math.max(b,1)];render()}catch(e){app.innerHTML='<p class="loading">卡牌加载失败，请刷新重试。</p>';console.error(e)}}init();
+async function init(){try{const [bootstrap,deckData,verificationData]=await Promise.all([fetch('./data/bootstrap.json?v=20260914i').then(r=>r.json()),fetch('./data/decks.json?v=20260914i').then(r=>r.json()),fetch('./data/verification.json?v=20260916c').then(r=>r.ok?r.json():{evidence:{}})]);cards=bootstrap;db=Object.fromEntries(cards.map(c=>[c.id,c]));decks=deckData.filter(d=>leader(d));verification=verificationData;engine=new Engine(cards,{});try{decks.push(...JSON.parse(localStorage.getItem('opcg-decks')||'[]'));const saved=JSON.parse(localStorage.getItem('opcg-game')||'null');if(saved?.s?.version===1||saved?.s?.version===2){engine.s=saved.s;engine.seed=saved.seed;engine.serial=saved.serial;engine.s.eventBatch??=0;engine.assertState();}}catch(e){console.warn('存档不可用',e);engine.s=null;}let a=decks.findIndex(d=>d.name.startsWith('ST01')),b=decks.findIndex(d=>d.name.startsWith('ST02'));chosen=[Math.max(a,0),Math.max(b,1)];render()}catch(e){app.innerHTML='<p class="loading">卡牌加载失败，请刷新重试。</p>';console.error(e)}}init();
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-soundmute]');if(!b)return;sound.setMuted(!sound.muted);b.textContent=sound.muted?'开启音效':'静音';b.setAttribute('aria-pressed',String(sound.muted));if(!sound.muted){sound.unlock();sound.play(['don']);}});
 document.addEventListener('input',e=>{if(!e.target.matches('[data-soundvolume]'))return;sound.setVolume(Number(e.target.value)/100);document.querySelector('#sound-level').textContent=e.target.value+'%';});

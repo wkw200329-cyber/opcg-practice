@@ -9,7 +9,7 @@ function rulesFor(e,id,actions){e.rules={...e.rules,[id]:{...e.rule({id}),action
 test('removal conditions preserve owner, category, KO kind, printed power and remover side',()=>{
  const e=game(),watch=e.card('ST01-003',0,'field'),own=e.card('ST01-005',0,'field'),enemy=e.card('ST02-003',1,'field');
  rulesFor(e,watch.id,[{proc:{YourCharacterRemoved:['StrawHatCrew']},steps:[{effect:{DrawCards:1}}]},{proc:{YourCharacterKOd:['StrawHatCrew'],YourCharacterOriginalPowerXOrMoreKOd:4000},steps:[{effect:{GainActiveDon:1}}]},{proc:{YouRemovedCharacter:true},steps:[{effect:{DrawCards:1}}]}]);
- const before=e.list(0,'hand').length;e.remove(own,'trash',false,enemy);e.pump();assert.equal(e.list(0,'hand').length,before+1);assert.equal(e.don(0).length,2);
+ const before=e.list(0,'hand').length;e.remove(own,'trash',false,enemy);e.pump();assert.equal(e.s.prompt.type,'triggerOrder');e.dispatch({type:'choose',value:'0'});assert.equal(e.list(0,'hand').length,before+1);assert.equal(e.don(0).length,2);
  const enemy2=e.card('ST02-003',1,'field');e.remove(enemy2,'trash',false,watch);e.pump();assert.equal(e.list(0,'hand').length,before+2);
  const ownLow=e.card('ST01-003',0,'field');e.remove(ownLow,'trash',false,enemy);e.pump();assert.equal(e.don(0).length,2);
 });

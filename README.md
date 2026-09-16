@@ -17,6 +17,7 @@
 - 引擎验证：`node --test tests/engine.test.mjs tests/playthrough.test.mjs tests/rules-expansion.test.mjs tests/sound.test.mjs tests/end-turn.test.mjs`
 - 浏览器验证：先启动上面的服务器，再执行 `python tools/qa_browser.py`（需要 Playwright 与 Chromium）。
 - 规则覆盖报告：`node tools/audit_coverage.mjs`
+- 核验台账：`node tools/audit_verification.mjs`。它只报告被自动化测试引用的卡牌，不能代替逐条官方效果核验。
 
 2026-09-14：56 项测试通过，其中四组包含 48 局起始牌组自动对局；手机 390 像素及桌面 1440 像素操作检查通过。专项检查包括费用非法操作回滚、KO 替代、返还七张 DON!!、强制抽牌、满场生命触发登场、特殊同名卡数量与手牌费用减免。自动对局不代表全部卡牌效果已经验证。
 

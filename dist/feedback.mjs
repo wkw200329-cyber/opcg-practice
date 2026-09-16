@@ -1,6 +1,6 @@
 export function operationGuide(e,selected=[]){
  const s=e.s,p=s.prompt,source=s.cards[p?.card||p?.task?.uid];
- const phases={endOrder:'选择回合结束效果的顺序',mulligan:'起手准备',targets:'选择效果目标',order:'排列卡牌',choice:'选择效果分支',confirmEffect:'确认效果费用',lifeTrigger:'生命触发',replacement:'离场替代效果',block:'阻挡阶段',counter:'反击阶段',peek:'查看卡牌',replace:'满场替换',effectDeployReplace:'效果登场 · 满场替换'};
+ const phases={endOrder:'选择回合结束效果的顺序',triggerOrder:'选择同时触发效果的顺序',mulligan:'起手准备',targets:'选择效果目标',order:'排列卡牌',choice:'选择效果分支',confirmEffect:'确认效果费用',lifeTrigger:'生命触发',replacement:'离场替代效果',block:'阻挡阶段',counter:'反击阶段',peek:'查看卡牌',replace:'满场替换',effectDeployReplace:'效果登场 · 满场替换'};
  let detail=p?.title||'点选手牌使用，或点场上卡牌进行操作。';
  if(p?.candidates){const remaining=Math.max(0,p.min-selected.length);detail=p.type==='order'?`依次点击卡牌，编号就是${p.destination||'牌库'}从上到下的顺序。`:`${p.min===p.max?`必须选择 ${p.min} 张`:`可选择 ${p.min}–${p.max} 张`}，已选 ${selected.length} 张。${remaining?`还需选择 ${remaining} 张。`:'可以确认。'}亮框表示合法目标，再点一次可取消选择。`;}
  if(p?.type==='counter')detail='点选当前手牌使用反击；完成后点击“结束反击”。防守力量必须高于攻击力量才能挡下攻击。';

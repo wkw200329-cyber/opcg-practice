@@ -13,6 +13,7 @@ export function table(e,handOwner,selected=[],attackFrom=null){
   if(p.type==='optional'||p.type==='lifeTrigger'||p.type==='replacement')buttons=`<button data-answer="no">${p.type==='lifeTrigger'?'加入手牌':'不发动'}</button><button class="primary" data-answer="yes">发动效果</button>`;
   if(p.type==='counter')buttons='<button class="primary" data-answer="finish">结束反击，结算战斗</button>';
   if(p.type==='endOrder')buttons=p.entries.map((x,i)=>`<button data-answer="${i}">${esc(e.name(s.cards[x.uid]))} · 效果 ${x.index+1}</button>`).join('');
+  if(p.type==='triggerOrder')buttons=p.entries.map((x,i)=>`<button data-answer="${i}">${esc(e.name(s.cards[x.uid]))} · 效果 ${x.index+1}</button>`).join('');
   if(p.type==='choice')buttons=p.choices.map((x,i)=>`<button data-answer="${i}">${esc(choiceLabel(x.ButtonText))}</button>`).join('');
   if(p.type==='declareCost')buttons=Array.from({length:11},(_,i)=>`<button data-answer="${i}">${i}</button>`).join('');
   if(p.type==='peek')buttons=`${card(s.cards[p.peek])}<button class="primary" data-answer="confirm">已查看，继续</button>`;

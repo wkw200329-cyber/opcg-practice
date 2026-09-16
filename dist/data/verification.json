@@ -1,0 +1,956 @@
+{
+  "generatedAt": "2026-09-16T01:19:27.761Z",
+  "totalCards": 2857,
+  "testReferencedCards": 183,
+  "notYetIndividuallyCertified": 2674,
+  "note": "“测试引用”表示该卡出现在可执行规则测试中，不等于该卡全部效果已经逐条人工核验。未逐卡认证的卡必须继续以中文官方卡表建立场景测试。",
+  "evidence": {
+    "EB01-002": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-008": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "EB01-012": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-013": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB01-014": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB01-015": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-017": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-023": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "EB01-027": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB01-035": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-043": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB01-052": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB02-004": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "EB02-009": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB03-001": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB03-012": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB04-003": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB04-016": {
+      "testFiles": [
+        "conditions-batch.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB04-048": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "EB04-061": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "OP01-002": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-024": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-029": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-060": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-062": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-063": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-067": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-072": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-075": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "OP01-083": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-088": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-091": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-092": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-094": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-098": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-099": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-105": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-112": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP01-120": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-025": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-027": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-050": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-051": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-064": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-074": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-084": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-102": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-118": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP02-120": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-002": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-004": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-005": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-018": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-021": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-027": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-028": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-032": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-034": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-036": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-037": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-039": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-040": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-047": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-059": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-078": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-096": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-112": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-122": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP03-123": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-001": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-003": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-006": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-008": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-009": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-010": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-011": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-012": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-017": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-021": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-024": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-039": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-040": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-043": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-047": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-048": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-069": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-079": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-080": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-082": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-083": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-084": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-090": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-094": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-095": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-096": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-097": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-100": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-112": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-115": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-116": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-117": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-118": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP04-119": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-002": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-004": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-006": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-007": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-020": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-043": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-079": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-080": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-088": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-094": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-096": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-101": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-110": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-114": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-115": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP05-119": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP06-006": {
+      "testFiles": [
+        "end-turn.test.mjs"
+      ]
+    },
+    "OP06-047": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP06-113": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP07-069": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP07-081": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP08-072": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "OP08-074": {
+      "testFiles": [
+        "end-turn.test.mjs"
+      ]
+    },
+    "OP08-098": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP09-018": {
+      "testFiles": [
+        "conditions-batch.test.mjs"
+      ]
+    },
+    "OP10-033": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP11-107": {
+      "testFiles": [
+        "end-turn.test.mjs"
+      ]
+    },
+    "OP12-030": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP14-002": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP14-027": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP14-053": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP14-064": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP15-022": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "OP15-031": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "OP16-042": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "OP17-119": {
+      "testFiles": [
+        "conditions-batch.test.mjs"
+      ]
+    },
+    "PRB01-001": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-001": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "ST01-002": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "ST01-003": {
+      "testFiles": [
+        "advanced-effects-batch.test.mjs",
+        "conditions-batch.test.mjs",
+        "declare-and-trigger-copy.test.mjs",
+        "engine.test.mjs",
+        "event-timing-batch.test.mjs",
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs",
+        "threshold-conditions.test.mjs",
+        "trigger-order.test.mjs"
+      ]
+    },
+    "ST01-004": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-005": {
+      "testFiles": [
+        "event-timing-batch.test.mjs"
+      ]
+    },
+    "ST01-006": {
+      "testFiles": [
+        "conditions-batch.test.mjs",
+        "declare-and-trigger-copy.test.mjs",
+        "event-timing-batch.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-009": {
+      "testFiles": [
+        "conditions-batch.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-011": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-012": {
+      "testFiles": [
+        "engine.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-013": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-014": {
+      "testFiles": [
+        "engine.test.mjs"
+      ]
+    },
+    "ST01-015": {
+      "testFiles": [
+        "advanced-effects-batch.test.mjs",
+        "engine.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST01-016": {
+      "testFiles": [
+        "advanced-effects-batch.test.mjs",
+        "event-timing-batch.test.mjs",
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "ST01-017": {
+      "testFiles": [
+        "conditions-batch.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST02-002": {
+      "testFiles": [
+        "engine.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST02-003": {
+      "testFiles": [
+        "advanced-effects-batch.test.mjs",
+        "event-timing-batch.test.mjs",
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs",
+        "threshold-conditions.test.mjs",
+        "trigger-order.test.mjs"
+      ]
+    },
+    "ST02-004": {
+      "testFiles": [
+        "engine.test.mjs",
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST02-005": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs",
+        "trigger-order.test.mjs"
+      ]
+    },
+    "ST02-014": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST02-016": {
+      "testFiles": [
+        "event-timing-batch.test.mjs"
+      ]
+    },
+    "ST03-007": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST03-012": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST04-001": {
+      "testFiles": [
+        "engine.test.mjs",
+        "legacy-op01-effects.test.mjs"
+      ]
+    },
+    "ST06-001": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST08-001": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST08-002": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST10-002": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST10-004": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST10-006": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST10-010": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST12-003": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-002": {
+      "testFiles": [
+        "end-turn.test.mjs"
+      ]
+    },
+    "ST13-006": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-007": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-009": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-010": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-014": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST13-017": {
+      "testFiles": [
+        "end-turn.test.mjs"
+      ]
+    },
+    "ST14-001": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST14-006": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST14-008": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST14-010": {
+      "testFiles": [
+        "rules-expansion.test.mjs"
+      ]
+    },
+    "ST14-017": {
+      "testFiles": [
+        "legacy-op01-effects.test.mjs",
+        "rules-expansion.test.mjs"
+      ]
+    }
+  }
+}
